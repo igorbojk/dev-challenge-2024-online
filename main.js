@@ -1,7 +1,38 @@
 import './style.css'
-
+import drawLineChart from "./src/drawChart/drawLineChart.js";
+import drawBarChart from "./src/drawChart/drawBarChart.js";
+import drawPieChart from "./src/drawChart/drawPieChart.js";
+import parseCSV from "./src/parseData/parseCSV.js";
+import parseXLSX from "./src/parseData/parseXLSX.js";
+import parseJSON from "./src/parseData/parseJSON.js";
 
 let data = [];
+
+const colorsPalette = [
+    '#4E79A7',
+    '#F28E2B',
+    '#E15759',
+    '#76B7B2',
+    '#59A14F'
+];
+
+let selectedColor = colorsPalette[0]; // Default color
+
+document.addEventListener('DOMContentLoaded', function() {
+    const colorPaletteDiv = document.getElementById('colorPalette');
+    colorsPalette.forEach(color => {
+        const colorButton = document.createElement('button');
+        colorButton.style.backgroundColor = color;
+        colorButton.classList.add('color-button');
+        colorButton.addEventListener('click', function() {
+            selectedColor = color;
+            document.querySelectorAll('.color-button').forEach(btn => btn.classList.remove('selected'));
+            colorButton.classList.add('selected');
+        });
+        colorPaletteDiv.appendChild(colorButton);
+    });
+    document.querySelector('.color-button').classList.add('selected'); // Select the first color by default
+});
 
 document.getElementById('uploadButton').addEventListener('click', function() {
     const fileInput = document.getElementById('fileInput');
@@ -11,10 +42,17 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         const file = fileInput.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
-            data = parseCSV(e.target.result);
+            const fileType = file.name.split('.').pop();
+            if (fileType === 'csv') {
+                data = parseCSV(e.target.result);
+            } else if (fileType === 'xlsx') {
+                data = parseXLSX(e.target.result);
+            } else if (fileType === 'json') {
+                data = parseJSON(e.target.result);
+            }
             previewData(data);
         };
-        reader.readAsText(file);
+        reader.readAsBinaryString(file);
     } else if (manualDataInput) {
         data = parseCSV(manualDataInput);
         previewData(data);
@@ -23,10 +61,7 @@ document.getElementById('uploadButton').addEventListener('click', function() {
     }
 });
 
-function parseCSV(data) {
-    const rows = data.split('\n').map(row => row.split(','));
-    return rows;
-}
+
 
 function previewData(data) {
     const previewTable = document.getElementById('dataPreview');
@@ -47,118 +82,20 @@ document.getElementById('drawChartButton').addEventListener('click', function() 
     const chartTitle = document.getElementById('chartTitle').value;
     const xAxisName = document.getElementById('xAxisName').value;
     const yAxisName = document.getElementById('yAxisName').value;
-    const color = document.getElementById('colorPicker').value;
 
     if (chartType === 'line') {
-        drawLineChart(data, chartTitle, xAxisName, yAxisName, color);
+        drawLineChart(data, chartTitle, xAxisName, yAxisName, selectedColor);
     } else if (chartType === 'bar') {
-        drawBarChart(data, chartTitle, xAxisName, yAxisName, color);
+        drawBarChart(data, chartTitle, xAxisName, yAxisName, selectedColor);
     } else if (chartType === 'pie') {
-        drawPieChart(data, chartTitle, color);
+        drawPieChart(data, chartTitle, colorsPalette);
     }
 });
 
-function drawLineChart(data, title, xAxisName, yAxisName, color) {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
 
-    ctx.clearRect(0, 0, width, height);
 
-    const labels = data[1].slice(1);
-    const values = data.slice(1).map(row => Number(row[1]));
 
-    const maxVal = values.reduce((max, val) => val > max ? val : max, values[0]);
-    const minVal = values.reduce((min, val) => val < min ? val : min, values[0]);
 
-    const stepX = width / (values.length - 1);
-    const stepY = height / (maxVal - minVal);
-
-    ctx.beginPath();
-    ctx.moveTo(0, height - (values[0] - minVal) * stepY);
-    values.forEach((value, index) => {
-        ctx.lineTo(index * stepX, height - (value - minVal) * stepY);
-    });
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.closePath();
-
-    // Draw axes and labels
-    ctx.fillStyle = '#000';
-    ctx.textAlign = 'center';
-    labels.forEach((label, index) => {
-        ctx.fillText(label, index * stepX, height - 5);
-    });
-    ctx.save();
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, 20);
-    ctx.restore();
-    ctx.fillText(xAxisName, width / 2, height - 20);
-    ctx.fillText(title, width / 2, 20);
-}
-
-function drawBarChart(data, title, xAxisName, yAxisName, color) {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-
-    ctx.clearRect(0, 0, width, height);
-
-    const labels = data[0].slice(1);
-    const values = data.slice(1).map(row => Number(row[1]));
-    const maxVal = Math.max(...values);
-    const barWidth = width / values.length;
-
-    ctx.fillStyle = color;
-    values.forEach((value, index) => {
-        const barHeight = (value / maxVal) * height;
-        ctx.fillRect(index * barWidth, height - barHeight, barWidth - 5, barHeight);
-    });
-
-    // Draw axes and labels
-    ctx.fillStyle = '#000';
-    ctx.textAlign = 'center';
-    labels.forEach((label, index) => {
-        ctx.fillText(label, index * barWidth + barWidth / 2, height - 5);
-    });
-    ctx.save();
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, 20);
-    ctx.restore();
-    ctx.fillText(xAxisName, width / 2, height - 20);
-    ctx.fillText(title, width / 2, 20);
-}
-
-function drawPieChart(data, title, color) {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    const radius = Math.min(width, height) / 2;
-
-    ctx.clearRect(0, 0, width, height);
-    ctx.save();
-    ctx.translate(width / 2, height / 2);
-
-    const total = data.slice(1).reduce((acc, val) => acc + Number(val[1] || 0), 0);
-    let startAngle = 0;
-
-    data.slice(1).forEach((value) => {
-        const sliceAngle = (Number(value[1]) / total) * 2 * Math.PI;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.arc(0, 0, radius, startAngle, startAngle + sliceAngle);
-        ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.fill();
-        startAngle += sliceAngle;
-    });
-
-    ctx.restore();
-}
 
 document.getElementById('exportPNG').addEventListener('click', function() {
     const canvas = document.getElementById('canvas');
