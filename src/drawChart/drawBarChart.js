@@ -17,6 +17,10 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, color, b
     const values = data.slice(1).map(row => Number(row[1]));
     const maxVal = Math.max(...values);
     const barSpacing = (width - 2 * padding) / values.length;
+    const defaultBarThickness = Math.max(barSpacing * 0.8, 1); // Default bar thickness based on spacing, minimum 1
+
+    // Use the provided barThickness or the default calculated one
+    barThickness = barThickness !== undefined ? barThickness : defaultBarThickness;
 
     // Draw horizontal grid lines and values
     const numGridLines = 5;
