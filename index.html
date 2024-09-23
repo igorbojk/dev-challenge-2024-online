@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+  <header>
+    <h1>Data Visualization Tool</h1>
+  </header>
+  <main>
+    <section id="uploadSection">
+      <input type="file" id="fileInput" accept=".csv, .xlsx, .json">
+      <textarea id="manualDataInput" placeholder="Enter data manually"></textarea>
+      <button id="uploadButton">Upload Data</button>
+    </section>
+    <section id="previewSection">
+      <table id="dataPreview"></table>
+    </section>
+    <section id="settingsSection">
+      <label for="chartType">Select Chart Type:</label>
+      <select id="chartType">
+        <option value="line">Line Chart</option>
+        <option value="bar">Bar Chart</option>
+        <option value="pie">Pie Chart</option>
+      </select>
+      <label for="chartTitle">Chart Title:</label>
+      <input type="text" id="chartTitle">
+      <label for="xAxisName">X-Axis Name:</label>
+      <input type="text" id="xAxisName">
+      <label for="yAxisName">Y-Axis Name:</label>
+      <input type="text" id="yAxisName">
+      <label for="colorPicker">Select Color:</label>
+      <input type="color" id="colorPicker">
+      <button id="drawChartButton">Draw Chart</button>
+    </section>
+    <section id="chartSection">
+      <canvas id="canvas"></canvas>
+    </section>
+    <section id="exportSection">
+      <button id="exportPNG">Export as PNG</button>
+      <button id="exportSVG">Export as SVG</button>
+      <button id="exportPDF">Export as PDF</button>
+      <button id="printChart">Print Chart</button>
+    </section>
+  </main>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
