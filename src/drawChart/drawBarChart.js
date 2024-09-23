@@ -1,4 +1,4 @@
-export default function drawBarChart(data, title, xAxisName, yAxisName, color) {
+export default function drawBarChart(data, title, xAxisName, yAxisName, color, barThickness) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -16,7 +16,7 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, color) {
     const labels = data.slice(1).map(row => row[0]);
     const values = data.slice(1).map(row => Number(row[1]));
     const maxVal = Math.max(...values);
-    const barWidth = (width - 2 * padding) / values.length;
+    const barSpacing = (width - 2 * padding) / values.length;
 
     // Draw horizontal grid lines and values
     const numGridLines = 5;
@@ -36,13 +36,14 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, color) {
     values.forEach((value, index) => {
         const barHeight = (value / maxVal) * (height - 2 * padding);
         ctx.fillStyle = color;
-        ctx.fillRect(padding + index * barWidth, height - padding - barHeight, barWidth - 5, barHeight);
+        const barX = padding + index * barSpacing + (barSpacing - barThickness) / 2;
+        ctx.fillRect(barX, height - padding - barHeight, barThickness, barHeight);
     });
 
     ctx.fillStyle = '#000';
     ctx.textAlign = 'center';
     labels.forEach((label, index) => {
-        ctx.fillText(label, padding + index * barWidth + barWidth / 2, height - padding + 20);
+        ctx.fillText(label, padding + index * barSpacing + barSpacing / 2, height - padding + 20);
     });
     ctx.save();
     ctx.rotate(-Math.PI / 2);

@@ -32,6 +32,41 @@ document.addEventListener('DOMContentLoaded', function() {
         colorPaletteDiv.appendChild(colorButton);
     });
     document.querySelector('.color-button').classList.add('selected'); // Select the first color by default
+
+    const chartTypeSelect = document.getElementById('chartType');
+    const lineSettings = document.getElementById('lineSettings');
+    const barSettings = document.getElementById('barSettings');
+
+    chartTypeSelect.addEventListener('change', function() {
+        if (chartTypeSelect.value === 'line') {
+            lineSettings.style.display = 'block';
+            barSettings.style.display = 'none';
+        } else if (chartTypeSelect.value === 'bar') {
+            lineSettings.style.display = 'none';
+            barSettings.style.display = 'block';
+        } else {
+            lineSettings.style.display = 'none';
+            barSettings.style.display = 'none';
+        }
+    });
+
+    document.getElementById('drawChartButton').addEventListener('click', function() {
+        const chartType = document.getElementById('chartType').value;
+        const chartTitle = document.getElementById('chartTitle').value;
+        const xAxisName = document.getElementById('xAxisName').value;
+        const yAxisName = document.getElementById('yAxisName').value;
+        const lineThickness = document.getElementById('lineThickness').value;
+        const lineStyle = document.getElementById('lineStyle').value;
+        const barThickness = document.getElementById('barThickness').value;
+
+        if (chartType === 'line') {
+            drawLineChart(data, chartTitle, xAxisName, yAxisName, selectedColor, lineThickness, lineStyle);
+        } else if (chartType === 'bar') {
+            drawBarChart(data, chartTitle, xAxisName, yAxisName, selectedColor, barThickness);
+        } else if (chartType === 'pie') {
+            drawPieChart(data, chartTitle, colorsPalette);
+        }
+    });
 });
 
 document.getElementById('uploadButton').addEventListener('click', function() {
@@ -76,23 +111,6 @@ function previewData(data) {
         previewTable.appendChild(tr);
     });
 }
-
-document.getElementById('drawChartButton').addEventListener('click', function() {
-    const chartType = document.getElementById('chartType').value;
-    const chartTitle = document.getElementById('chartTitle').value;
-    const xAxisName = document.getElementById('xAxisName').value;
-    const yAxisName = document.getElementById('yAxisName').value;
-
-    if (chartType === 'line') {
-        drawLineChart(data, chartTitle, xAxisName, yAxisName, selectedColor);
-    } else if (chartType === 'bar') {
-        drawBarChart(data, chartTitle, xAxisName, yAxisName, selectedColor);
-    } else if (chartType === 'pie') {
-        drawPieChart(data, chartTitle, colorsPalette);
-    }
-});
-
-
 
 
 

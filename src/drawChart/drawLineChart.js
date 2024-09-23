@@ -1,4 +1,4 @@
-export default function drawLineChart(data, title, xAxisName, yAxisName, color) {
+export default function drawLineChart(data, title, xAxisName, yAxisName, color, lineThickness, lineStyle) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -39,6 +39,14 @@ export default function drawLineChart(data, title, xAxisName, yAxisName, color) 
     // Draw line
     ctx.beginPath();
     ctx.strokeStyle = color;
+    ctx.lineWidth = lineThickness;
+    if (lineStyle === 'dashed') {
+        ctx.setLineDash([10, 5]);
+    } else if (lineStyle === 'dashdot') {
+        ctx.setLineDash([10, 5, 2, 5]);
+    } else {
+        ctx.setLineDash([]);
+    }
     values.forEach((value, index) => {
         const x = padding + index * xStep;
         const y = height - padding - (value - minVal) * yScale;
@@ -59,7 +67,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName, color) 
     });
     ctx.save();
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, padding - 10);
+    ctx.fillText(yAxisName, -height / 2,  10); // Adjusted position for Y-Axis name
     ctx.restore();
     ctx.fillText(xAxisName, width / 2, height - padding + 40);
     ctx.fillText(title, width / 2, padding - 10);
