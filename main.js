@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (chartType === 'bar') {
             drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
         } else if (chartType === 'pie') {
-            drawPieChart(data, chartTitle);
+            drawPieChart(data, chartTitle, colorsPalette);
         }
     });
 });
@@ -202,16 +202,19 @@ document.getElementById('exportPDF').addEventListener('click', function() {
     document.body.removeChild(link);
 });
 
-document.getElementById('printChart').addEventListener('click', function() {
+function printGraph() {
+    const canvas = document.getElementById('canvas');
     const dataUrl = canvas.toDataURL('image/png');
-    let windowContent = '<!DOCTYPE html>';
-    windowContent += '<html>';
-    windowContent += '<head><title>Print chart</title></head>';
-    windowContent += '<body>';
-    windowContent += '<img src="' + dataUrl + '">';
-    windowContent += '</body>';
-    windowContent += '</html>';
-    const printWin = window.open('', '', 'width=800,height=600');
+    const windowContent = `
+        <!DOCTYPE html>
+        <html>
+        <head><title>Print chart</title></head>
+        <body style="margin: 0;">
+            <img src="${dataUrl}" style="width: 100%; height: auto;">
+        </body>
+        </html>
+    `;
+    const printWin = window.open('', '', `width=${canvas.width},height=${canvas.height}`);
     printWin.document.open();
     printWin.document.write(windowContent);
     printWin.document.close();
@@ -220,6 +223,15 @@ document.getElementById('printChart').addEventListener('click', function() {
         printWin.print();
         printWin.close();
     }, 500);
+}
+
+document.getElementById('printChart').addEventListener('click', printGraph);
+
+document.addEventListener('keydown', function(event) {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'p') {
+        event.preventDefault(); // Запобігає відкриттю стандартного діалогового вікна друку
+        printGraph();
+    }
 });
 
 function canvasToSVG() {
