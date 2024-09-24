@@ -58,12 +58,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const chartTitle = document.getElementById('chartTitle').value;
         const xAxisName = document.getElementById('xAxisName').value;
         const yAxisName = document.getElementById('yAxisName').value;
-        const lineThickness = document.getElementById('lineThickness').value;
-        const lineStyle = document.getElementById('lineStyle').value;
         const barThickness = document.getElementById('barThickness').value;
 
+
         if (chartType === 'line') {
-            drawLineChart(data, chartTitle, xAxisName, yAxisName, selectedColor, lineThickness, lineStyle);
+            const lineSettings = document.getElementById('lineSettings');
+
+            drawLineChart(data, chartTitle, xAxisName, yAxisName, selectedColor);
         } else if (chartType === 'bar') {
             drawBarChart(data, chartTitle, xAxisName, yAxisName, selectedColor, barThickness);
         } else if (chartType === 'pie') {
@@ -96,7 +97,9 @@ document.getElementById('uploadButton').addEventListener('click', function() {
         previewData(data);
     } else {
         alert('Please upload a file or enter data manually.');
+        return;
     }
+
 });
 
 
@@ -112,6 +115,28 @@ function previewData(data) {
             tr.appendChild(td);
         });
         previewTable.appendChild(tr);
+    });
+
+    const lineSettingsContainer = document.getElementById('lineSettings');
+    lineSettingsContainer.innerHTML = ''; // Очистити попередні налаштування
+    const headers = data[0].slice(1); // Заголовки для ліній (без першого елемента)
+    headers.forEach((header, index) => {
+        const lineSettingDiv = document.createElement('div');
+        lineSettingDiv.innerHTML = `
+            <label for="lineEnabled${index}">Enable ${header}:</label>
+            <input type="checkbox" id="lineEnabled${index}" checked>
+            <label for="lineThickness${index}">Line Thickness:</label>-->
+            <input type="number" id="lineThickness${index}" value="2" min="1">
+            <label for="lineColor${index}">Color for ${header}:</label>
+            <input type="color" id="lineColor${index}" value="#000000">
+            <label for="lineStyle${index}">Line Style for ${header}:</label>
+            <select id="lineStyle${index}">
+                <option value="solid">Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dashdot">Dash-Dot</option>
+            </select>
+        `;
+        lineSettingsContainer.appendChild(lineSettingDiv);
     });
 }
 
@@ -165,27 +190,6 @@ document.getElementById('exportPDF').addEventListener('click', function() {
     // Видаляємо посилання після завантаження
     document.body.removeChild(link);
 });
-//
-//
-// document.getElementById('exportPDF').addEventListener('click', function() {
-//     const dataUrl = canvas.toDataURL('image/png');
-//     let windowContent = '<!DOCTYPE html>';
-//     windowContent += '<html>';
-//     windowContent += '<head><title>Print chart</title></head>';
-//     windowContent += '<body>';
-//     windowContent += '<img src="' + dataUrl + '">';
-//     windowContent += '</body>';
-//     windowContent += '</html>';
-//     const printWin = window.open('', '', 'width=800,height=600');
-//     printWin.document.open();
-//     printWin.document.write(windowContent);
-//     printWin.document.close();
-//     printWin.focus();
-//     setTimeout(() => {
-//         printWin.print();
-//         printWin.close();
-//     }, 500);
-// });
 
 document.getElementById('printChart').addEventListener('click', function() {
     const dataUrl = canvas.toDataURL('image/png');
@@ -211,9 +215,9 @@ function canvasToSVG(canvas) {
     const chartTitle = document.getElementById('chartTitle').value;
     const xAxisName = document.getElementById('xAxisName').value;
     const yAxisName = document.getElementById('yAxisName').value;
-    const lineThickness = document.getElementById('lineThickness').value;
-    const lineStyle = document.getElementById('lineStyle').value;
+    // const lineThickness = document.getElementById('lineThickness').value;
+    // const lineStyle = document.getElementById('lineStyle').value;
 
-    const svg = drawLineChartSVG(data, chartTitle, xAxisName, yAxisName, selectedColor, lineThickness, lineStyle);
+    const svg = drawLineChartSVG(data, chartTitle, xAxisName, yAxisName);
     return new XMLSerializer().serializeToString(svg);
 }

@@ -1,4 +1,4 @@
-export default function drawLineChart(data, title, xAxisName, yAxisName, color, lineThickness, lineStyle) {
+export default function drawLineChart(data, title, xAxisName, yAxisName) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -36,14 +36,35 @@ export default function drawLineChart(data, title, xAxisName, yAxisName, color, 
         ctx.fillText(value.toFixed(2), padding - 10, y + 3);
     }
 
+    // Draw vertical grid lines and labels
+    labels.forEach((label, index) => {
+        const x = padding + index * xStep;
+        ctx.beginPath();
+        ctx.moveTo(x, padding);
+        ctx.lineTo(x, height - padding);
+        ctx.strokeStyle = '#e0e0e0';
+        ctx.stroke();
+        ctx.fillStyle = '#000';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, x, height - padding + 20);
+    });
+
+
     // Draw lines for each set of values
     values[0].forEach((_, lineIndex) => {
+        const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
+        if (!enabled) return;
+
+        const color = document.getElementById(`lineColor${lineIndex}`).value;
+        const style = document.getElementById(`lineStyle${lineIndex}`).value;
+        const lineThickness = document.getElementById(`lineThickness${lineIndex}`).value;
+
         ctx.beginPath();
         ctx.strokeStyle = color;
         ctx.lineWidth = lineThickness;
-        if (lineStyle === 'dashed') {
+        if (style === 'dashed') {
             ctx.setLineDash([10, 5]);
-        } else if (lineStyle === 'dashdot') {
+        } else if (style === 'dashdot') {
             ctx.setLineDash([10, 5, 2, 5]);
         } else {
             ctx.setLineDash([]);

@@ -33,24 +33,16 @@
       <label for="yAxisName">Y-Axis Name:</label>
       <input type="text" id="yAxisName">
 
-      <div id="lineSettings">
-        <label for="lineThickness">Line Thickness:</label>
-        <input type="number" id="lineThickness" value="2" min="1">
-        <label for="lineStyle">Line Style:</label>
-        <select id="lineStyle">
-          <option value="solid">Solid</option>
-          <option value="dashed">Dashed</option>
-          <option value="dashdot">Dash-Dot</option>
-        </select>
-      </div>
+      <div id="lineSettings"></div>
 
       <div id="barSettings" style="display: none;">
         <label for="barThickness">Bar Thickness:</label>
         <input type="number" id="barThickness" value="5" min="1">
+        <label for="colorPalette">Select Color:</label>
+        <div id="colorPalette"></div>
       </div>
 
-      <label for="colorPalette">Select Color:</label>
-      <div id="colorPalette"></div>
+
       <button id="drawChartButton">Draw Chart</button>
     </section>
     <section id="chartSection">

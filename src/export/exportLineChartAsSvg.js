@@ -1,4 +1,4 @@
-export default function drawLineChartSVG(data, title, xAxisName, yAxisName, color, lineThickness, lineStyle) {
+export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('width', '100%');
@@ -39,8 +39,35 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName, colo
         svg.appendChild(text);
     }
 
+    // Draw vertical grid lines and labels
+    labels.forEach((label, index) => {
+        const x = padding + index * xStep;
+
+        const line = document.createElementNS(svgNS, 'line');
+        line.setAttribute('x1', x);
+        line.setAttribute('y1', padding);
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', height - padding);
+        line.setAttribute('stroke', '#e0e0e0');
+        svg.appendChild(line);
+
+        const text = document.createElementNS(svgNS, 'text');
+        text.setAttribute('x', x);
+        text.setAttribute('y', height - padding + 20);
+        text.setAttribute('text-anchor', 'middle');
+        text.textContent = label;
+        svg.appendChild(text);
+    });
+
     // Draw lines for each set of values
     values[0].forEach((_, lineIndex) => {
+        const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
+        if (!enabled) return;
+
+        const color = document.getElementById(`lineColor${lineIndex}`).value;
+        const style = document.getElementById(`lineStyle${lineIndex}`).value;
+        const lineThickness = document.getElementById(`lineThickness${lineIndex}`).value;
+
         const path = document.createElementNS(svgNS, 'path');
         const d = values.map((row, index) => {
             const x = padding + index * xStep;
@@ -52,25 +79,15 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName, colo
         path.setAttribute('stroke', color);
         path.setAttribute('stroke-width', lineThickness);
         path.setAttribute('fill', 'none');
-        if (lineStyle === 'dashed') {
+        if (style === 'dashed') {
             path.setAttribute('stroke-dasharray', '10,5');
-        } else if (lineStyle === 'dashdot') {
+        } else if (style === 'dashdot') {
             path.setAttribute('stroke-dasharray', '10,5,2,5');
         }
         svg.appendChild(path);
     });
 
-    // Draw axes and labels
-    labels.forEach((label, index) => {
-        const x = padding + index * xStep;
-        const text = document.createElementNS(svgNS, 'text');
-        text.setAttribute('x', x);
-        text.setAttribute('y', height - padding + 20);
-        text.setAttribute('text-anchor', 'middle');
-        text.textContent = label;
-        svg.appendChild(text);
-    });
-
+    // Draw Y-axis label
     const yAxisText = document.createElementNS(svgNS, 'text');
     yAxisText.setAttribute('x', -height / 2);
     yAxisText.setAttribute('y', 10);
@@ -79,6 +96,7 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName, colo
     yAxisText.textContent = yAxisName;
     svg.appendChild(yAxisText);
 
+    // Draw X-axis label
     const xAxisText = document.createElementNS(svgNS, 'text');
     xAxisText.setAttribute('x', width / 2);
     xAxisText.setAttribute('y', height - padding + 40);
@@ -86,6 +104,7 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName, colo
     xAxisText.textContent = xAxisName;
     svg.appendChild(xAxisText);
 
+    // Draw chart title
     const titleText = document.createElementNS(svgNS, 'text');
     titleText.setAttribute('x', width / 2);
     titleText.setAttribute('y', padding - 10);
