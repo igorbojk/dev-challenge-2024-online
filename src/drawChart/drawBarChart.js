@@ -1,12 +1,4 @@
-
-const colorsPalette = [
-    '#4E79A7',
-    '#F28E2B',
-    '#E15759',
-    '#76B7B2',
-    '#59A14F'
-];
-export default function drawBarChart(data, title, xAxisName, yAxisName, barThickness) {
+export default function drawBarChart(data, title, xAxisName, yAxisName, barThickness, colorsPalette) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 

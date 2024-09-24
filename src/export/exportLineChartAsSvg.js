@@ -111,6 +111,5 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
     titleText.setAttribute('text-anchor', 'middle');
     titleText.textContent = title;
     svg.appendChild(titleText);
-
-    return svg;
+    return new XMLSerializer().serializeToString(svg);
 }

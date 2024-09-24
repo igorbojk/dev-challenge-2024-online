@@ -7,9 +7,18 @@ import parseXLSX from "./src/parseData/parseXLSX.js";
 import parseJSON from "./src/parseData/parseJSON.js";
 
 import exportLineChartAsSvg from "./src/export/exportLineChartAsSvg.js";
+import {exportBarChartAsSvg} from "./src/export/exportBarChartAsSvg.js";
 
 let data = [];
 
+
+const colorsPalette = [
+    '#4E79A7',
+    '#F28E2B',
+    '#E15759',
+    '#76B7B2',
+    '#59A14F'
+];
 
 document.addEventListener('DOMContentLoaded', function() {
     const chartTypeSelect = document.getElementById('chartType');
@@ -38,11 +47,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         if (chartType === 'line') {
-            const lineSettings = document.getElementById('lineSettings');
-
             drawLineChart(data, chartTitle, xAxisName, yAxisName);
         } else if (chartType === 'bar') {
-            drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness);
+            drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
         } else if (chartType === 'pie') {
             drawPieChart(data, chartTitle);
         }
@@ -215,13 +222,21 @@ document.getElementById('printChart').addEventListener('click', function() {
     }, 500);
 });
 
-function canvasToSVG(canvas) {
+function canvasToSVG() {
+    const chartType = document.getElementById('chartType').value;
     const chartTitle = document.getElementById('chartTitle').value;
     const xAxisName = document.getElementById('xAxisName').value;
     const yAxisName = document.getElementById('yAxisName').value;
-    // const lineThickness = document.getElementById('lineThickness').value;
-    // const lineStyle = document.getElementById('lineStyle').value;
 
-    const svg = exportLineChartAsSvg(data, chartTitle, xAxisName, yAxisName);
-    return new XMLSerializer().serializeToString(svg);
+
+    if (chartType === 'line') {
+          return exportLineChartAsSvg(data, chartTitle, xAxisName, yAxisName);
+    } else if (chartType === 'bar') {
+        const barThickness = document.getElementById('barThickness').value;
+
+        return exportBarChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
+    } else if (chartType === 'pie') {
+        // drawPieChart(data, chartTitle);
+    }
+
 }
