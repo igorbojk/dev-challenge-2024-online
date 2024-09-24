@@ -57,7 +57,10 @@ document.getElementById('uploadButton').addEventListener('click', function() {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    document.getElementById('barThickness').value = 0;
+    const barThickness = document.getElementById('barThickness');
+    if (barThickness) {
+        barThickness.value = 0;
+    }
 
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
@@ -119,6 +122,25 @@ function previewData(data) {
             </select>
         `;
         lineSettingsContainer.appendChild(lineSettingDiv);
+    });
+
+    const barSettingsContainer = document.getElementById('barSettings');
+    barSettingsContainer.innerHTML = ''; // Clear previous settings
+
+    const barSettingDiv = document.createElement('div');
+    barSettingDiv.innerHTML = `
+        <label for="barThickness">Bar Thickness:</label>
+        <input type="number" id="barThickness" value="0" min="1">
+    `;
+    barSettingsContainer.appendChild(barSettingDiv);
+
+    headers.forEach((header, index) => {
+        const barSettingDiv = document.createElement('div');
+        barSettingDiv.innerHTML = `
+            <label for="barEnabled${index}">Enable ${header}:</label>
+            <input type="checkbox" id="barEnabled${index}" checked>
+        `;
+        barSettingsContainer.appendChild(barSettingDiv);
     });
 }
 

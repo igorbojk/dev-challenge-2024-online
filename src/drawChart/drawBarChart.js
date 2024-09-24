@@ -6,7 +6,6 @@ const colorsPalette = [
     '#76B7B2',
     '#59A14F'
 ];
-
 export default function drawBarChart(data, title, xAxisName, yAxisName, barThickness) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -26,10 +25,14 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
     const values = data.slice(1).map(row => row.slice(1).map(Number));
     const maxVal = Math.max(...values.flat());
     const barSpacing = (width - 2 * padding) / labels.length;
-    const defaultBarThickness = Math.max(barSpacing * 0.8 / values[0].length, 1); // Default bar thickness based on spacing, minimum 1
-    document.getElementById('barThickness').value = defaultBarThickness.toFixed();
+    const activeColumnsCount = values[0].filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked).length;
+    const defaultBarThickness = Math.max(barSpacing * 0.8 / activeColumnsCount, 1); // Default bar thickness based on spacing, minimum 1
+
+    if (!+barThickness || +barThickness > defaultBarThickness.toFixed()) {
+        document.getElementById('barThickness').value = defaultBarThickness.toFixed();
+        barThickness = defaultBarThickness;
+    }
     // Use the provided barThickness or the default calculated one
-    barThickness = !!+barThickness ? +barThickness : defaultBarThickness;
 
     // Draw horizontal grid lines and values
     const numGridLines = 5;
@@ -47,10 +50,17 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
     }
 
     values.forEach((row, rowIndex) => {
+        const activeColumns = row.filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked);
+        const totalActiveWidth = activeColumns.length * barThickness;
+        const groupOffset = (barSpacing - totalActiveWidth) / 2;
+
         row.forEach((value, colIndex) => {
+            const barEnabled = document.getElementById(`barEnabled${colIndex}`).checked;
+            if (!barEnabled) return;
+
             const barHeight = (value / maxVal) * (height - 2 * padding);
             ctx.fillStyle = colorsPalette[colIndex % colorsPalette.length];
-            const barX = padding + rowIndex * barSpacing + colIndex * barThickness;
+            const barX = padding + rowIndex * barSpacing + groupOffset + activeColumns.indexOf(value) * barThickness;
             ctx.fillRect(barX, height - padding - barHeight, barThickness, barHeight);
         });
     });
