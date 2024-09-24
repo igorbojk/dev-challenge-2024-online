@@ -14,10 +14,10 @@ export default function drawLineChart(data, title, xAxisName, yAxisName, color, 
     ctx.clearRect(0, 0, width, height);
 
     const labels = data.slice(1).map(row => row[0]);
-    const values = data.slice(1).map(row => row[1]);
+    const values = data.slice(1).map(row => row.slice(1));
 
-    const maxVal = Math.max(...values);
-    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values.flat());
+    const minVal = Math.min(...values.flat());
     const xStep = (width - 2 * padding) / (labels.length - 1);
     const yScale = (height - 2 * padding) / (maxVal - minVal);
 
@@ -36,27 +36,29 @@ export default function drawLineChart(data, title, xAxisName, yAxisName, color, 
         ctx.fillText(value.toFixed(2), padding - 10, y + 3);
     }
 
-    // Draw line
-    ctx.beginPath();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineThickness;
-    if (lineStyle === 'dashed') {
-        ctx.setLineDash([10, 5]);
-    } else if (lineStyle === 'dashdot') {
-        ctx.setLineDash([10, 5, 2, 5]);
-    } else {
-        ctx.setLineDash([]);
-    }
-    values.forEach((value, index) => {
-        const x = padding + index * xStep;
-        const y = height - padding - (value - minVal) * yScale;
-        if (index === 0) {
-            ctx.moveTo(x, y);
+    // Draw lines for each set of values
+    values[0].forEach((_, lineIndex) => {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineThickness;
+        if (lineStyle === 'dashed') {
+            ctx.setLineDash([10, 5]);
+        } else if (lineStyle === 'dashdot') {
+            ctx.setLineDash([10, 5, 2, 5]);
         } else {
-            ctx.lineTo(x, y);
+            ctx.setLineDash([]);
         }
+        values.forEach((row, index) => {
+            const x = padding + index * xStep;
+            const y = height - padding - (row[lineIndex] - minVal) * yScale;
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+        ctx.stroke();
     });
-    ctx.stroke();
 
     // Draw axes and labels
     ctx.fillStyle = '#000';
@@ -67,7 +69,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName, color, 
     });
     ctx.save();
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2,  10); // Adjusted position for Y-Axis name
+    ctx.fillText(yAxisName, -height / 2, 10); // Adjusted position for Y-Axis name
     ctx.restore();
     ctx.fillText(xAxisName, width / 2, height - padding + 40);
     ctx.fillText(title, width / 2, padding - 10);
