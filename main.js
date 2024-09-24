@@ -6,6 +6,9 @@ import parseCSV from "./src/parseData/parseCSV.js";
 import parseXLSX from "./src/parseData/parseXLSX.js";
 import parseJSON from "./src/parseData/parseJSON.js";
 
+import exportLineChartAsSvg from "./src/export/exportLineChartAsSvg.js";
+import drawLineChartSVG from "./src/export/exportLineChartAsSvg.js";
+
 let data = [];
 
 const colorsPalette = [
@@ -205,14 +208,12 @@ document.getElementById('printChart').addEventListener('click', function() {
 });
 
 function canvasToSVG(canvas) {
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('width', canvas.width);
-    svg.setAttribute('height', canvas.height);
-    const img = document.createElementNS(svgNS, 'image');
-    img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', canvas.toDataURL('image/png'));
-    img.setAttribute('width', canvas.width);
-    img.setAttribute('height', canvas.height);
-    svg.appendChild(img);
+    const chartTitle = document.getElementById('chartTitle').value;
+    const xAxisName = document.getElementById('xAxisName').value;
+    const yAxisName = document.getElementById('yAxisName').value;
+    const lineThickness = document.getElementById('lineThickness').value;
+    const lineStyle = document.getElementById('lineStyle').value;
+
+    const svg = drawLineChartSVG(data, chartTitle, xAxisName, yAxisName, selectedColor, lineThickness, lineStyle);
     return new XMLSerializer().serializeToString(svg);
 }
