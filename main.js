@@ -7,7 +7,6 @@ import parseXLSX from "./src/parseData/parseXLSX.js";
 import parseJSON from "./src/parseData/parseJSON.js";
 
 import exportLineChartAsSvg from "./src/export/exportLineChartAsSvg.js";
-import drawLineChartSVG from "./src/export/exportLineChartAsSvg.js";
 
 let data = [];
 
@@ -76,6 +75,12 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('uploadButton').addEventListener('click', function() {
     const fileInput = document.getElementById('fileInput');
     const manualDataInput = document.getElementById('manualDataInput').value;
+
+    // Clear the canvas before uploading new data
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById('barThickness').value = 0;
 
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
@@ -218,6 +223,6 @@ function canvasToSVG(canvas) {
     // const lineThickness = document.getElementById('lineThickness').value;
     // const lineStyle = document.getElementById('lineStyle').value;
 
-    const svg = drawLineChartSVG(data, chartTitle, xAxisName, yAxisName);
+    const svg = exportLineChartAsSvg(data, chartTitle, xAxisName, yAxisName);
     return new XMLSerializer().serializeToString(svg);
 }
