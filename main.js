@@ -10,31 +10,8 @@ import exportLineChartAsSvg from "./src/export/exportLineChartAsSvg.js";
 
 let data = [];
 
-const colorsPalette = [
-    '#4E79A7',
-    '#F28E2B',
-    '#E15759',
-    '#76B7B2',
-    '#59A14F'
-];
-
-let selectedColor = colorsPalette[0]; // Default color
 
 document.addEventListener('DOMContentLoaded', function() {
-    const colorPaletteDiv = document.getElementById('colorPalette');
-    colorsPalette.forEach(color => {
-        const colorButton = document.createElement('button');
-        colorButton.style.backgroundColor = color;
-        colorButton.classList.add('color-button');
-        colorButton.addEventListener('click', function() {
-            selectedColor = color;
-            document.querySelectorAll('.color-button').forEach(btn => btn.classList.remove('selected'));
-            colorButton.classList.add('selected');
-        });
-        colorPaletteDiv.appendChild(colorButton);
-    });
-    document.querySelector('.color-button').classList.add('selected'); // Select the first color by default
-
     const chartTypeSelect = document.getElementById('chartType');
     const lineSettings = document.getElementById('lineSettings');
     const barSettings = document.getElementById('barSettings');
@@ -63,11 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (chartType === 'line') {
             const lineSettings = document.getElementById('lineSettings');
 
-            drawLineChart(data, chartTitle, xAxisName, yAxisName, selectedColor);
+            drawLineChart(data, chartTitle, xAxisName, yAxisName);
         } else if (chartType === 'bar') {
-            drawBarChart(data, chartTitle, xAxisName, yAxisName, selectedColor, barThickness);
+            drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness);
         } else if (chartType === 'pie') {
-            drawPieChart(data, chartTitle, colorsPalette);
+            drawPieChart(data, chartTitle);
         }
     });
 });
