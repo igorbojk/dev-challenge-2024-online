@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lineSettings = document.getElementById('lineSettings');
     const barSettings = document.getElementById('barSettings');
     const drawChartButton = document.getElementById('drawChartButton');
-    const uploadButton = document.getElementById('uploadButton');
+    const proceedButton = document.getElementById('proceedButton');
     const exportPNGButton = document.getElementById('exportPNG');
     const exportSVGButton = document.getElementById('exportSVG');
     const exportPDFButton = document.getElementById('exportPDF');
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chartTypeSelect.addEventListener('change', handleChartTypeChange);
     drawChartButton.addEventListener('click', drawChart);
-    uploadButton.addEventListener('click', uploadData);
+    proceedButton.addEventListener('click', uploadData);
     exportPNGButton.addEventListener('click', exportPNG);
     exportSVGButton.addEventListener('click', exportSVG);
     exportPDFButton.addEventListener('click', exportPDF);

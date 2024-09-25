@@ -13,16 +13,20 @@
     <span class="material-icons icon pointer" id="themeIcon">brightness_6</span>
   </header>
   <main>
-    <section id="uploadSection">
+      <section class="upload-section">
+        <div id="dropZone" class="drop-zone"><p>Drag and drop files here or click on button </p>  <input type="file" id="fileInput" accept=".csv, .xlsx, .json"></div>
+        <div class="divider">
+          <span class="small-text">OR</span>
+        </div>
+        <textarea id="manualDataInput" placeholder="Enter data manually"></textarea>
+        <button id="proceedButton" class="secondary">Proceed Data</button>
+      </section>
 
-      <div id="dropZone">Drag and drop files here or click on button  <input type="file" id="fileInput" accept=".csv, .xlsx, .json"></div>
-      <textarea id="manualDataInput" placeholder="Enter data manually"></textarea>
-      <button id="uploadButton">Upload Data</button>
-    </section>
-    <section id="previewSection">
+    <section id="previewSection" class="hide">
       <table id="dataPreview"></table>
     </section>
-    <section id="settingsSection">
+
+    <section id="settingsSection"  class="hide">
       <label for="chartType">Select Chart Type:</label>
       <select id="chartType">
         <option value="line">Line Chart</option>
@@ -42,12 +46,14 @@
       </div>
 
 
-      <button id="drawChartButton">Draw Chart</button>
+      <button id="drawChartButton" class="primary">Draw Chart</button>
     </section>
-    <section id="chartSection">
+
+    <section id="chartSection"  class="hide">
       <canvas id="canvas"></canvas>
     </section>
-    <section id="exportSection">
+
+    <section id="exportSection"  class="hide">
       <button id="exportPNG">Export as PNG</button>
       <button id="exportSVG">Export as SVG</button>
       <button id="exportPDF">Export as PDF</button>
