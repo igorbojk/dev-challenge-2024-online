@@ -8,6 +8,7 @@ import parseJSON from "./src/parseData/parseJSON.js";
 
 import exportLineChartAsSvg from "./src/export/exportLineChartAsSvg.js";
 import {exportBarChartAsSvg} from "./src/export/exportBarChartAsSvg.js";
+import {exportPieChartAsSvg} from "./src/export/exportPieChartAsSvg.js";
 
 let data = [];
 
@@ -248,7 +249,7 @@ function canvasToSVG() {
 
         return exportBarChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
     } else if (chartType === 'pie') {
-        // drawPieChart(data, chartTitle);
+        return exportPieChartAsSvg(data, chartTitle, colorsPalette);
     }
 }
 
