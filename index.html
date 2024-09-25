@@ -4,15 +4,18 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Vite App</title>
   </head>
-  <body>
+  <body class="light-theme">
   <header>
     <h1>Data Visualization Tool</h1>
+    <span class="material-icons icon pointer" id="themeIcon">brightness_6</span>
   </header>
   <main>
     <section id="uploadSection">
-      <input type="file" id="fileInput" accept=".csv, .xlsx, .json">
+
+      <div id="dropZone">Drag and drop files here or click on button  <input type="file" id="fileInput" accept=".csv, .xlsx, .json"></div>
       <textarea id="manualDataInput" placeholder="Enter data manually"></textarea>
       <button id="uploadButton">Upload Data</button>
     </section>

@@ -1,14 +1,154 @@
-body {
-  font-family: Arial, sans-serif;
+/* Primary Colors */
+:root {
+  --primary-blue: #003366;
+  --secondary-blue: #0056A2;
+  --white: #FFFFFF;
+  --gray-background: #F1F1F1;
+  --black: #000000;
+  --golden-accent: #FFD700;
+  --error-red: #D32F2F;
+}
+
+/* Base Styles */
+html, body {
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  color: var(--black);
+  background-color: #f8f9fa;
 }
 
+/* Dark Theme Styles */
+body.dark-theme {
+  background-color: #121212;
+  color: var(--white);
+}
+
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6,
+body.dark-theme label {
+  color: var(--white);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 32px;
+  color: var(--primary-blue);
+}
+
+label {
+  color: var(--primary-blue);
+}
+
+p, .body-text {
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 24px;
+}
+
+label, .small-text {
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 16px;
+  color: var(--secondary-blue);
+}
+
+/* Header Styles */
 header {
-  text-align: center;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #0056b3;
+  color: white;
+  position: sticky;
+  top: 0;
 }
 
+header h1 {
+  margin: 0;
+  color: var(--white);
+  font-size: 24px;
+}
+
+/* Button Styles */
+button {
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button.primary {
+  background-color: var(--primary-blue);
+  color: var(--white);
+}
+
+button.primary:hover {
+  background-color: #00284D;
+}
+
+button.secondary {
+  background-color: var(--golden-accent);
+  color: var(--black);
+}
+
+button.secondary:hover {
+  background-color: #E6BE00;
+}
+
+button.error {
+  background-color: var(--error-red);
+  color: var(--white);
+}
+
+button.error:hover {
+  background-color: #B71C1C;
+}
+
+/* Dark Theme Button Styles */
+body.dark-theme button.primary:hover,
+body.dark-theme button.primary {
+  background-color: var(--primary-blue);
+  color: var(--white);
+}
+
+body.dark-theme button.secondary:hover,
+body.dark-theme button.secondary {
+  background-color: var(--golden-accent);
+  color: var(--black);
+}
+
+body.dark-theme button.error:hover,
+body.dark-theme button.error {
+  background-color: var(--error-red);
+  color: var(--white);
+}
+
+/* Backgrounds */
+.bg-primary {
+  background-color: var(--primary-blue);
+}
+
+.bg-secondary {
+  background-color: var(--secondary-blue);
+}
+
+.bg-gray {
+  background-color: var(--gray-background);
+}
+
+.bg-white {
+  background-color: var(--white);
+}
+
+/* Main Layout */
 main {
   display: flex;
   flex-direction: column;
@@ -42,6 +182,7 @@ canvas {
   }
 }
 
+/* Miscellaneous */
 .color-button {
   width: 30px;
   height: 30px;
@@ -52,4 +193,19 @@ canvas {
 
 .color-button.selected {
   border: 2px solid #000;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+#dropZone {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#dropZone.dragover {
+  border-color: #000;
 }

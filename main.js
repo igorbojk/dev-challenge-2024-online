@@ -250,5 +250,51 @@ function canvasToSVG() {
     } else if (chartType === 'pie') {
         // drawPieChart(data, chartTitle);
     }
-
 }
+
+document.getElementById('themeIcon').addEventListener('click', function() {
+    const body = document.body;
+
+    if (body.classList.contains('light-theme')) {
+        body.classList.remove('light-theme');
+        body.classList.add('dark-theme');
+    } else {
+        body.classList.remove('dark-theme');
+        body.classList.add('light-theme');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('dragover', function(event) {
+        event.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', function() {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', function(event) {
+        event.preventDefault();
+        dropZone.classList.remove('dragover');
+
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            const validExtensions = ['csv', 'xlsx', 'json'];
+            const file = files[0];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (validExtensions.includes(fileExtension)) {
+                fileInput.files = files;
+                // Optional: Trigger change event if needed
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            } else {
+                alert('Invalid file type. Please upload a .csv, .xlsx, or .json file.');
+            }
+        }
+    });
+});
