@@ -20,33 +20,24 @@ const colorsPalette = [
     '#59A14F'
 ];
 
-document.addEventListener('DOMContentLoaded', () => {
-    const chartTypeSelect = document.getElementById('chartType');
-    const lineSettings = document.getElementById('lineSettings');
-    const barSettings = document.getElementById('barSettings');
-    const drawChartButton = document.getElementById('drawChartButton');
-    const proceedButton = document.getElementById('proceedButton');
-    const exportPNGButton = document.getElementById('exportPNG');
-    const exportSVGButton = document.getElementById('exportSVG');
-    const exportPDFButton = document.getElementById('exportPDF');
-    const printChartButton = document.getElementById('printChart');
-    const themeIcon = document.getElementById('themeIcon');
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
+// Elements
+const chartTypeSelect = document.getElementById('chartType');
+const lineSettings = document.getElementById('lineSettings');
+const barSettings = document.getElementById('barSettings');
+const drawChartButton = document.getElementById('drawChartButton');
+const proceedButton = document.getElementById('proceedButton');
+const exportPNGButton = document.getElementById('exportPNG');
+const exportSVGButton = document.getElementById('exportSVG');
+const exportPDFButton = document.getElementById('exportPDF');
+const printChartButton = document.getElementById('printChart');
+const themeIcon = document.getElementById('themeIcon');
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const previewSection = document.getElementById('previewSection');
+const uploadSection = document.getElementById('uploadSection');
+const resetButton = document.getElementById('resetButton');
 
-    chartTypeSelect.addEventListener('change', handleChartTypeChange);
-    drawChartButton.addEventListener('click', drawChart);
-    proceedButton.addEventListener('click', uploadData);
-    exportPNGButton.addEventListener('click', exportPNG);
-    exportSVGButton.addEventListener('click', exportSVG);
-    exportPDFButton.addEventListener('click', exportPDF);
-    printChartButton.addEventListener('click', printGraph);
-    themeIcon.addEventListener('click', toggleTheme);
-    dropZone.addEventListener('dragover', handleDragOver);
-    dropZone.addEventListener('dragleave', handleDragLeave);
-    dropZone.addEventListener('drop', handleDrop);
-    document.addEventListener('keydown', handleKeyDown);
-});
+
 
 const handleChartTypeChange = () => {
     const chartType = document.getElementById('chartType').value;
@@ -108,6 +99,8 @@ const uploadData = () => {
 };
 
 const previewData = (data) => {
+    uploadSection.classList.add('hidden');
+    previewSection.classList.remove('hidden');
     const previewTable = document.getElementById('dataPreview');
     previewTable.innerHTML = '';
     data.forEach(row => {
@@ -279,3 +272,41 @@ const canvasToSVG = () => {
         return exportPieChartAsSvg(data, chartTitle, colorsPalette);
     }
 };
+
+// Handlers
+
+
+chartTypeSelect.addEventListener('change', handleChartTypeChange);
+drawChartButton.addEventListener('click', drawChart);
+proceedButton.addEventListener('click', uploadData);
+exportPNGButton.addEventListener('click', exportPNG);
+exportSVGButton.addEventListener('click', exportSVG);
+exportPDFButton.addEventListener('click', exportPDF);
+printChartButton.addEventListener('click', printGraph);
+themeIcon.addEventListener('click', toggleTheme);
+dropZone.addEventListener('dragover', handleDragOver);
+dropZone.addEventListener('dragleave', handleDragLeave);
+dropZone.addEventListener('drop', handleDrop);
+document.addEventListener('keydown', handleKeyDown);
+resetButton.addEventListener('click', () => {
+    // Clear the data in the table
+    const dataPreview = document.getElementById('dataPreview');
+    dataPreview.innerHTML = '';
+
+    // Clear the graph
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Reset any data variables (assuming you have some global variables for data)
+    window.chartData = null;
+    window.chart = null;
+
+    // Hide sections that should be hidden after reset
+    uploadSection.classList.remove('hidden');
+    previewSection.classList.add('hidden');
+    // TODO change this
+    document.getElementById('settingsSection').classList.add('hidden');
+    document.getElementById('chartSection').classList.add('hidden');
+    document.getElementById('exportSection').classList.add('hidden');
+});
