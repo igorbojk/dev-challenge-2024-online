@@ -9,7 +9,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const padding = 40;
+    const padding = 50;
 
     ctx.clearRect(0, 0, width, height);
 
@@ -90,7 +90,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     });
     ctx.save();
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, 10); // Adjusted position for Y-Axis name
+    ctx.fillText(yAxisName, -height / 2, padding - 10); // Adjusted position for Y-Axis name
     ctx.restore();
     ctx.fillText(xAxisName, width / 2, height - padding + 40);
     ctx.fillText(title, width / 2, padding - 10);

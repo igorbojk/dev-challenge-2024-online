@@ -7,7 +7,7 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const padding = 40;
+    const padding = 50;
 
     const labels = data.slice(1).map(row => row[0]);
     const values = data.slice(1).map(row => row.slice(1));

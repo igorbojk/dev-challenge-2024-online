@@ -22,48 +22,67 @@
         <button id="proceedButton" class="secondary">Proceed Data</button>
       </section>
 
-    <section id="previewSection" class="hidden preview-section">
-      <div class="button-actions">
-        <button id="resetButton" class="error">Reset all</button>
+    <div class="actions hidden">
+      <div class="chart-type-select">
+        <label for="chartType">Select Chart Type:</label>
+        <select id="chartType" >
+          <option value="line">Line Chart</option>
+          <option value="bar">Bar Chart</option>
+          <option value="pie">Pie Chart</option>
+        </select>
       </div>
+      <button id="settingsButton" class="secondary">
+        <span class="material-icons icon">
+          settings
+        </span>
+      </button>
+      <button id="drawChartButton" class="primary">Draw Chart</button>
+
+      <button id="resetButton" class="error">Reset all</button>
+
+    </div>
+    <section id="previewSection" class="hidden preview-section">
+
       <div class="table-container">
         <table id="dataPreview"></table>
       </div>
     </section>
 
-    <section id="settingsSection"  class="hidden">
-      <label for="chartType">Select Chart Type:</label>
-      <select id="chartType">
-        <option value="line">Line Chart</option>
-        <option value="bar">Bar Chart</option>
-        <option value="pie">Pie Chart</option>
-      </select>
-      <label for="chartTitle">Chart Title:</label>
-      <input type="text" id="chartTitle">
-      <label for="xAxisName">X-Axis Name:</label>
-      <input type="text" id="xAxisName">
-      <label for="yAxisName">Y-Axis Name:</label>
-      <input type="text" id="yAxisName">
-
-      <div id="lineSettings"></div>
-
-      <div id="barSettings" style="display: none;">
-      </div>
-
-
-      <button id="drawChartButton" class="primary">Draw Chart</button>
-    </section>
 
     <section id="chartSection"  class="hidden">
+      <div id="settingsSection">
+        <div class="base-settings">
+          <div class="input-element">
+            <label for="chartTitle">Chart Title:</label>
+            <input type="text" id="chartTitle">
+          </div>
+          <div class="input-element">
+            <label for="xAxisName">X-Axis Name:</label>
+            <input type="text" id="xAxisName">
+          </div>
+          <div class="input-element">
+            <label for="yAxisName">Y-Axis Name:</label>
+            <input type="text" id="yAxisName">
+          </div>
+        </div>
+      </div>
       <canvas id="canvas"></canvas>
+
+      <section id="exportSection">
+        <button id="exportPNG">Export as PNG</button>
+        <button id="exportSVG">Export as SVG</button>
+        <button id="exportPDF">Export as PDF</button>
+        <button id="printChart">Print Chart</button>
+      </section>
     </section>
 
-    <section id="exportSection"  class="hidden">
-      <button id="exportPNG">Export as PNG</button>
-      <button id="exportSVG">Export as SVG</button>
-      <button id="exportPDF">Export as PDF</button>
-      <button id="printChart">Print Chart</button>
-    </section>
+    <aside class="chart-settings">
+      <div id="lineSettings" class="line-settings"></div>
+
+      <div id="barSettings" style="display: none;"></div>
+    </aside>
+
+
   </main>
     <script type="module" src="/main.js"></script>
   </body>

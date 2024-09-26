@@ -13,6 +13,10 @@ html {
   font-size: 10px;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 /* Base Styles */
 html, body {
   margin: 0;
@@ -178,11 +182,6 @@ main {
   flex-direction: column;
 }
 
-#settingsSection, #exportSection {
-  width: 100%;
-  max-width: 60rem;
-  margin-bottom: 2rem;
-}
 
 #dataPreview {
   width: 100%;
@@ -195,8 +194,9 @@ main {
 }
 
 canvas {
+  flex: 1 1 auto;
   width: 100%;
-  height: 70rem;
+  height: 100%;
 }
 
 @media (max-width: 768px) {
@@ -268,11 +268,15 @@ textarea {
   border-bottom: 0.1rem solid #ccc;
 }
 
-.button-actions {
+.actions {
+  width: 100%;
   margin-bottom: 1.2rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.2rem;
 }
 
-.preview-section button {
+.actions button {
   width: 100%;
 }
 
@@ -293,8 +297,13 @@ textarea {
 #dataPreview thead {
   position: sticky;
   top: 0;
-  background-color: #fff; /* Колір фону для з��головка */
+  background-color: var(--white);
   z-index: 1;
+  border: 1px solid #ddd;
+}
+
+body.dark-theme #dataPreview thead {
+  background-color:  var(--black);
 }
 
 #dataPreview th, #dataPreview td {
@@ -306,4 +315,111 @@ textarea {
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 8rem);
+}
+
+.chart-type-select {
+  select {
+    height: 5rem;
+    min-width: 15rem;
+    padding: 0.8rem;
+    font-weight: bold;
+  }
+}
+
+#chartSection {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-element {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.input-element input {
+  min-height: 3rem;
+  padding: 0.2rem 0.8rem;
+}
+
+.base-settings {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.2rem;
+  width: 100%;
+  margin-bottom: 1.2rem;
+}
+
+.base-settings .input-element {
+  flex: 1;
+}
+
+
+#settingsSection {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+input[type="number"] {
+  width: 3rem;
+  height: 2rem;
+}
+
+.line-setting-element {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 0.1rem solid #ccc;
+}
+
+.line-setting-element .small-text {
+  width: 100%;
+}
+
+.line-setting-element .settings {
+  display: flex;
+  align-items: center;
+}
+
+.line-setting-element .settings> * {
+  width: 50%;
+}
+
+
+#settingsButton {
+  width: auto;
+}
+
+aside {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: -32rem;
+  transition: right 0.3s;
+  width: 32rem;
+  z-index: 997;
+  background: var(--white);
+  padding: 0.8rem;
+  border-left: 0.1rem solid var(--primary-blue);
+}
+
+aside.active {
+  right: 0;
+}
+
+body.dark-theme aside{
+  background: var(--black);
+  border-left: 0.1rem solid var(--white);
+}
+
+#exportSection {
+  display: flex;
+  gap: 1.2rem;
+}
+
+#exportSection button {
+ flex: 1;
 }

@@ -36,19 +36,22 @@ const fileInput = document.getElementById('fileInput');
 const previewSection = document.getElementById('previewSection');
 const uploadSection = document.getElementById('uploadSection');
 const resetButton = document.getElementById('resetButton');
+const settingsButton = document.getElementById('settingsButton');
+const actionsBlock = document.querySelector('.actions');
 
 
 
 const handleChartTypeChange = () => {
     const chartType = document.getElementById('chartType').value;
-    const lineSettings = document.getElementById('lineSettings');
-    const barSettings = document.getElementById('barSettings');
 
     lineSettings.style.display = chartType === 'line' ? 'block' : 'none';
     barSettings.style.display = chartType === 'bar' ? 'block' : 'none';
 };
 
 const drawChart = () => {
+    previewSection.classList.add('hidden');
+    chartSection.classList.remove('hidden');
+
     const chartType = document.getElementById('chartType').value;
     const chartTitle = document.getElementById('chartTitle').value;
     const xAxisName = document.getElementById('xAxisName').value;
@@ -101,6 +104,7 @@ const uploadData = () => {
 const previewData = (data) => {
     uploadSection.classList.add('hidden');
     previewSection.classList.remove('hidden');
+    actionsBlock.classList.remove('hidden');
     const previewTable = document.getElementById('dataPreview');
     previewTable.innerHTML = '';
 
@@ -133,19 +137,28 @@ const previewData = (data) => {
     const headers = data[0].slice(1);
     headers.forEach((header, index) => {
         const lineSettingDiv = document.createElement('div');
+        lineSettingDiv.classList.add('line-setting-element');
         lineSettingDiv.innerHTML = `
-            <label for="lineEnabled${index}">Enable ${header}:</label>
-            <input type="checkbox" id="lineEnabled${index}" checked>
-            <label for="lineThickness${index}">Line Thickness:</label>
-            <input type="number" id="lineThickness${index}" value="2" min="1">
-            <label for="lineColor${index}">Color for ${header}:</label>
-            <input type="color" id="lineColor${index}" value="#000000">
-            <label for="lineStyle${index}">Line Style for ${header}:</label>
-            <select id="lineStyle${index}">
-                <option value="solid">Solid</option>
-                <option value="dashed">Dashed</option>
-                <option value="dashdot">Dash-Dot</option>
-            </select>
+            <div class="settings">
+                <label for="lineEnabled${index}">${header}:</label>
+                <input type="checkbox" id="lineEnabled${index}" checked>
+            </div>
+            <div class="settings">
+                <label for="lineThickness${index}">Thickness:</label>
+                <input type="number" id="lineThickness${index}" value="2" min="1">
+            </div>
+            <div class="settings">
+                <label for="lineColor${index}">Color:</label>
+                <input type="color" id="lineColor${index}" value="#000000">
+            </div>
+            <div class="settings">
+                <label for="lineStyle${index}">Line Style:</label>
+                <select id="lineStyle${index}">
+                    <option value="solid">Solid</option>
+                    <option value="dashed">Dashed</option>
+                    <option value="dashdot">Dash-Dot</option>
+                </select>
+            </div>
         `;
         lineSettingsContainer.appendChild(lineSettingDiv);
     });
@@ -289,8 +302,6 @@ const canvasToSVG = () => {
 };
 
 // Handlers
-
-
 chartTypeSelect.addEventListener('change', handleChartTypeChange);
 drawChartButton.addEventListener('click', drawChart);
 proceedButton.addEventListener('click', uploadData);
@@ -320,8 +331,14 @@ resetButton.addEventListener('click', () => {
     // Hide sections that should be hidden after reset
     uploadSection.classList.remove('hidden');
     previewSection.classList.add('hidden');
+    actionsBlock.classList.add('hidden');
     // TODO change this
     document.getElementById('settingsSection').classList.add('hidden');
     document.getElementById('chartSection').classList.add('hidden');
     document.getElementById('exportSection').classList.add('hidden');
+});
+
+settingsButton.addEventListener('click', () => {
+    const asideElement = document.querySelector('aside');
+    asideElement.classList.toggle('active');
 });

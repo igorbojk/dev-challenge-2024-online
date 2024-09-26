@@ -5,11 +5,12 @@ export default function drawPieChart(data, title, colors) {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = canvas.clientWidth * dpr;
     canvas.height = canvas.clientHeight * dpr;
+    const padding = 50;
     ctx.scale(dpr, dpr);
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const radius = height / 2;
+    const radius = (height / 2) - padding;
 
     ctx.clearRect(0, 0, width, height);
     ctx.save();
