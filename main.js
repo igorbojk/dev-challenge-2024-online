@@ -20,6 +20,8 @@ const colorsPalette = [
     '#59A14F'
 ];
 
+const viewState = 'upload'; // 'upload', 'preview', 'chart';
+
 // Elements
 const chartTypeSelect = document.getElementById('chartType');
 const lineSettings = document.getElementById('lineSettings');
@@ -38,6 +40,9 @@ const uploadSection = document.getElementById('uploadSection');
 const resetButton = document.getElementById('resetButton');
 const settingsButton = document.getElementById('settingsButton');
 const actionsBlock = document.querySelector('.actions');
+const previewTable = document.getElementById('dataPreview');
+const chartSection = document.getElementById('chartSection');
+
 
 
 
@@ -49,8 +54,7 @@ const handleChartTypeChange = () => {
 };
 
 const drawChart = () => {
-    previewSection.classList.add('hidden');
-    chartSection.classList.remove('hidden');
+    changeView('chart');
 
     const chartType = document.getElementById('chartType').value;
     const chartTitle = document.getElementById('chartTitle').value;
@@ -67,7 +71,7 @@ const drawChart = () => {
     }
 };
 
-const uploadData = () => {
+const proceedData = () => {
     const fileInput = document.getElementById('fileInput');
     const manualDataInput = document.getElementById('manualDataInput').value;
     const canvas = document.getElementById('canvas');
@@ -102,10 +106,7 @@ const uploadData = () => {
 };
 
 const previewData = (data) => {
-    uploadSection.classList.add('hidden');
-    previewSection.classList.remove('hidden');
-    actionsBlock.classList.remove('hidden');
-    const previewTable = document.getElementById('dataPreview');
+    changeView('preview');
     previewTable.innerHTML = '';
 
     // Create table header
@@ -304,7 +305,7 @@ const canvasToSVG = () => {
 // Handlers
 chartTypeSelect.addEventListener('change', handleChartTypeChange);
 drawChartButton.addEventListener('click', drawChart);
-proceedButton.addEventListener('click', uploadData);
+proceedButton.addEventListener('click', proceedData);
 exportPNGButton.addEventListener('click', exportPNG);
 exportSVGButton.addEventListener('click', exportSVG);
 exportPDFButton.addEventListener('click', exportPDF);
@@ -314,31 +315,54 @@ dropZone.addEventListener('dragover', handleDragOver);
 dropZone.addEventListener('dragleave', handleDragLeave);
 dropZone.addEventListener('drop', handleDrop);
 document.addEventListener('keydown', handleKeyDown);
+
 resetButton.addEventListener('click', () => {
-    // Clear the data in the table
-    const dataPreview = document.getElementById('dataPreview');
-    dataPreview.innerHTML = '';
-
-    // Clear the graph
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Reset any data variables (assuming you have some global variables for data)
-    window.chartData = null;
-    window.chart = null;
-
-    // Hide sections that should be hidden after reset
-    uploadSection.classList.remove('hidden');
-    previewSection.classList.add('hidden');
-    actionsBlock.classList.add('hidden');
-    // TODO change this
-    document.getElementById('settingsSection').classList.add('hidden');
-    document.getElementById('chartSection').classList.add('hidden');
-    document.getElementById('exportSection').classList.add('hidden');
+    changeView('upload');
 });
 
 settingsButton.addEventListener('click', () => {
     const asideElement = document.querySelector('aside');
     asideElement.classList.toggle('active');
 });
+
+function changeView(view) {
+    switch (view) {
+        case 'upload':
+            // Clear the data in the table
+            const dataPreview = document.getElementById('dataPreview');
+            dataPreview.innerHTML = '';
+
+            // Clear the graph
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Reset any data variables (assuming you have some global variables for data)
+            window.chartData = null;
+            window.chart = null;
+
+            // Clear file input and manual data
+            const fileInput = document.getElementById('fileInput');
+            const manualDataInput = document.getElementById('manualDataInput');
+            fileInput.value = '';
+            manualDataInput.value = '';
+
+            // Hide sections that should be hidden after reset
+            uploadSection.classList.remove('hidden');
+            previewSection.classList.add('hidden');
+            actionsBlock.classList.add('hidden');
+            chartSection.classList.add('hidden');
+            break;
+        case 'preview':
+            uploadSection.classList.add('hidden');
+            previewSection.classList.remove('hidden');
+            actionsBlock.classList.remove('hidden');
+            break;
+        case 'chart':
+        default:
+            previewSection.classList.add('hidden');
+            chartSection.classList.remove('hidden');
+            break;
+    }
+
+}
