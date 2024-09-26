@@ -103,15 +103,30 @@ const previewData = (data) => {
     previewSection.classList.remove('hidden');
     const previewTable = document.getElementById('dataPreview');
     previewTable.innerHTML = '';
-    data.forEach(row => {
+
+    // Create table header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    data[0].forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    previewTable.appendChild(thead);
+
+    // Create table body
+    const tbody = document.createElement('tbody');
+    data.slice(1).forEach(row => {
         const tr = document.createElement('tr');
         row.forEach(cell => {
             const td = document.createElement('td');
             td.textContent = cell;
             tr.appendChild(td);
         });
-        previewTable.appendChild(tr);
+        tbody.appendChild(tr);
     });
+    previewTable.appendChild(tbody);
 
     const lineSettingsContainer = document.getElementById('lineSettings');
     lineSettingsContainer.innerHTML = '';

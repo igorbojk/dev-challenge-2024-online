@@ -23,6 +23,11 @@ html, body {
   min-height: 100vh;
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Dark Theme Styles */
 body.dark-theme {
   background-color: #121212;
@@ -67,6 +72,7 @@ label, .small-text {
 
 /* Header Styles */
 header {
+  flex: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -167,6 +173,9 @@ body.dark-theme button.error:hover {
 
 main {
   padding: 0.8rem;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 #settingsSection, #exportSection {
@@ -269,4 +278,32 @@ textarea {
 
 .hidden {
   display: none !important;
+}
+
+.table-container {
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+#dataPreview {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#dataPreview thead {
+  position: sticky;
+  top: 0;
+  background-color: #fff; /* Колір фону для з��головка */
+  z-index: 1;
+}
+
+#dataPreview th, #dataPreview td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 8rem);
 }
