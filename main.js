@@ -56,6 +56,10 @@ const handleChartTypeChange = () => {
 
     xAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
     yAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
+
+    if (viewState === 'chart') {
+        drawChart();
+    }
 };
 
 const drawChart = () => {
@@ -241,12 +245,30 @@ const exportPDF = () => {
 
 const printGraph = () => {
     const canvas = document.getElementById('canvas');
-    const dataUrl = canvas.toDataURL('image/png');
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    const backgroundColor = isDarkTheme ? '#000' : '#FFF';
+
+    // Create a temporary canvas to draw the background
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+
+    // Draw the background
+    tempCtx.fillStyle = backgroundColor;
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // Draw the original canvas on top
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // Get the data URL of the combined image
+    const dataUrl = tempCanvas.toDataURL('image/png');
+
     const windowContent = `
         <!DOCTYPE html>
         <html>
         <head><title>Print chart</title></head>
-        <body style="margin: 0;">
+        <body style="margin: 0; background: ${backgroundColor}">
             <img src="${dataUrl}" style="width: 100%; height: auto;">
         </body>
         </html>
@@ -266,6 +288,7 @@ const toggleTheme = () => {
     const body = document.body;
     body.classList.toggle('light-theme');
     body.classList.toggle('dark-theme');
+    drawChart();
 };
 
 const handleDragOver = (event) => {
@@ -297,8 +320,10 @@ const handleDrop = (event) => {
 
 const handleKeyDown = (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 'p') {
-        event.preventDefault();
-        printGraph();
+        if (viewState === 'chart') {
+            event.preventDefault();
+            printGraph();
+        }
     }
 };
 
