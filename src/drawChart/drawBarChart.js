@@ -69,7 +69,7 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
     });
     ctx.save();
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, padding - 30); // Adjusted position of Y-Axis name
+    ctx.fillText(yAxisName, -height / 2, 20); // Adjusted position of Y-Axis name
     ctx.restore();
     ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
     ctx.fillText(title, width / 2, padding - 20);

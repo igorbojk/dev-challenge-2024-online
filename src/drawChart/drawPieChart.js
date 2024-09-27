@@ -5,7 +5,9 @@ export default function drawPieChart(data, title, colors) {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = canvas.clientWidth * dpr;
     canvas.height = canvas.clientHeight * dpr;
-    const padding = 50;
+    const basePadding = 50;
+    const titlePadding = title ? 30 : 0;
+    const padding = basePadding + titlePadding;
     ctx.scale(dpr, dpr);
 
     const width = canvas.clientWidth;
@@ -14,7 +16,7 @@ export default function drawPieChart(data, title, colors) {
 
     ctx.clearRect(0, 0, width, height);
     ctx.save();
-    ctx.translate(width / 2, height / 2);
+    ctx.translate(width / 2, height / 2 + titlePadding / 2);
 
     const total = data.slice(1).reduce((acc, val) => acc + Number(val[1] || 0), 0);
     let startAngle = 0;
@@ -34,8 +36,8 @@ export default function drawPieChart(data, title, colors) {
 
         // Calculate the position for the percentage text
         const textAngle = startAngle + sliceAngle / 2;
-        const textX = (radius / 2) * Math.cos(textAngle);
-        const textY = (radius / 2) * Math.sin(textAngle);
+        const textX = (radius * 0.75) * Math.cos(textAngle); // Move text outward
+        const textY = (radius * 0.75) * Math.sin(textAngle); // Move text outward
 
         // Draw the percentage text
         ctx.fillStyle = '#000';
@@ -69,4 +71,13 @@ export default function drawPieChart(data, title, colors) {
         ctx.textBaseline = 'middle';
         ctx.fillText(value[0], legendX + legendBoxSize + legendSpacing, legendItemY + legendBoxSize / 2);
     });
+
+    // Draw title
+    if (title) {
+        ctx.fillStyle = '#000';
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(title, width / 2, basePadding / 2);
+    }
 }
