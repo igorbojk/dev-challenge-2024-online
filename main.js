@@ -20,7 +20,7 @@ const colorsPalette = [
     '#59A14F'
 ];
 
-const viewState = 'upload'; // 'upload', 'preview', 'chart';
+let viewState = 'upload'; // 'upload', 'preview', 'chart';
 
 // Elements
 const chartTypeSelect = document.getElementById('chartType');
@@ -42,8 +42,8 @@ const settingsButton = document.getElementById('settingsButton');
 const actionsBlock = document.querySelector('.actions');
 const previewTable = document.getElementById('dataPreview');
 const chartSection = document.getElementById('chartSection');
-
-
+const closeBtn = document.getElementById('closeBtn');
+const asideElement = document.querySelector('aside');
 
 
 const handleChartTypeChange = () => {
@@ -74,13 +74,7 @@ const drawChart = () => {
 const proceedData = () => {
     const fileInput = document.getElementById('fileInput');
     const manualDataInput = document.getElementById('manualDataInput').value;
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const barThickness = document.getElementById('barThickness');
-    if (barThickness) {
-        barThickness.value = 0;
-    }
+
 
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
@@ -94,15 +88,24 @@ const proceedData = () => {
             } else if (fileType === 'json') {
                 data = parseJSON(e.target.result);
             }
-            previewData(data);
+            validateData(data);
         };
         reader.readAsBinaryString(file);
     } else if (manualDataInput) {
         data = parseCSV(manualDataInput);
-        previewData(data);
+        validateData(data);
     } else {
         alert('Please upload a file or enter data manually.');
     }
+};
+
+const validateData = (data) => {
+    const isValid = data.slice(1).every(row => row.every((cell, index) => index === 0 || !isNaN(cell)));
+    if (!isValid) {
+        alert('Data is not valid. All values except the first element must be numeric.');
+        return;
+    }
+    previewData(data);
 };
 
 const previewData = (data) => {
@@ -302,6 +305,56 @@ const canvasToSVG = () => {
     }
 };
 
+
+function changeView(view) {
+    viewState = view;
+    switch (view) {
+        case 'upload':
+            asideElement.classList.remove('active');
+
+            // Clear the data in the table
+            const dataPreview = document.getElementById('dataPreview');
+            dataPreview.innerHTML = '';
+
+            // Clear the graph
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (barThickness) {
+                barThickness.value = 0;
+            }
+
+            // Reset any data variables (assuming you have some global variables for data)
+            window.chartData = null;
+            window.chart = null;
+
+            // Clear file input and manual data
+            const fileInput = document.getElementById('fileInput');
+            const manualDataInput = document.getElementById('manualDataInput');
+            fileInput.value = '';
+            manualDataInput.value = '';
+
+            // Hide sections that should be hidden after reset
+            uploadSection.classList.remove('hidden');
+            previewSection.classList.add('hidden');
+            actionsBlock.classList.add('hidden');
+            chartSection.classList.add('hidden');
+            break;
+        case 'preview':
+
+            uploadSection.classList.add('hidden');
+            previewSection.classList.remove('hidden');
+            actionsBlock.classList.remove('hidden');
+            break;
+        case 'chart':
+        default:
+            previewSection.classList.add('hidden');
+            chartSection.classList.remove('hidden');
+            break;
+    }
+
+}
+
 // Handlers
 chartTypeSelect.addEventListener('change', handleChartTypeChange);
 drawChartButton.addEventListener('click', drawChart);
@@ -321,48 +374,17 @@ resetButton.addEventListener('click', () => {
 });
 
 settingsButton.addEventListener('click', () => {
-    const asideElement = document.querySelector('aside');
     asideElement.classList.toggle('active');
 });
 
-function changeView(view) {
-    switch (view) {
-        case 'upload':
-            // Clear the data in the table
-            const dataPreview = document.getElementById('dataPreview');
-            dataPreview.innerHTML = '';
 
-            // Clear the graph
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+closeBtn.addEventListener('click', () => {
+    asideElement.classList.remove('active');
+})
 
-            // Reset any data variables (assuming you have some global variables for data)
-            window.chartData = null;
-            window.chart = null;
-
-            // Clear file input and manual data
-            const fileInput = document.getElementById('fileInput');
-            const manualDataInput = document.getElementById('manualDataInput');
-            fileInput.value = '';
-            manualDataInput.value = '';
-
-            // Hide sections that should be hidden after reset
-            uploadSection.classList.remove('hidden');
-            previewSection.classList.add('hidden');
-            actionsBlock.classList.add('hidden');
-            chartSection.classList.add('hidden');
-            break;
-        case 'preview':
-            uploadSection.classList.add('hidden');
-            previewSection.classList.remove('hidden');
-            actionsBlock.classList.remove('hidden');
-            break;
-        case 'chart':
-        default:
-            previewSection.classList.add('hidden');
-            chartSection.classList.remove('hidden');
-            break;
+document.addEventListener('click', (event) => {
+    debugger
+    if (!asideElement.contains(event.target) && !settingsButton.contains(event.target)) {
+        asideElement.classList.remove('active');
     }
-
-}
+});

@@ -423,3 +423,7 @@ body.dark-theme aside{
 #exportSection button {
  flex: 1;
 }
+
+#closeBtn {
+  cursor: pointer;
+}

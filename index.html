@@ -69,14 +69,17 @@
       <canvas id="canvas"></canvas>
 
       <section id="exportSection">
-        <button id="exportPNG">Export as PNG</button>
-        <button id="exportSVG">Export as SVG</button>
-        <button id="exportPDF">Export as PDF</button>
-        <button id="printChart">Print Chart</button>
+        <button id="exportPNG" class="primary">Export as PNG</button>
+        <button id="exportSVG" class="primary">Export as SVG</button>
+        <button id="exportPDF" class="primary">Export as PDF</button>
+        <button id="printChart" class="primary">Print Chart</button>
       </section>
     </section>
 
     <aside class="chart-settings">
+       <span class="material-icons icon" id="closeBtn">
+          close
+        </span>
       <div id="lineSettings" class="line-settings"></div>
 
       <div id="barSettings" style="display: none;"></div>
