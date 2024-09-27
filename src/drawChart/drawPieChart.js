@@ -21,6 +21,9 @@ export default function drawPieChart(data, title, colors) {
     const total = data.slice(1).reduce((acc, val) => acc + Number(val[1] || 0), 0);
     let startAngle = 0;
 
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    const textColor = isDarkTheme ? '#FFF' : '#000';
+
     data.slice(1).forEach((value, index) => {
         const sliceValue = Number(value[1]);
         const sliceAngle = (sliceValue / total) * 2 * Math.PI;
@@ -36,11 +39,11 @@ export default function drawPieChart(data, title, colors) {
 
         // Calculate the position for the percentage text
         const textAngle = startAngle + sliceAngle / 2;
-        const textX = (radius * 0.75) * Math.cos(textAngle); // Move text outward
-        const textY = (radius * 0.75) * Math.sin(textAngle); // Move text outward
+        const textX = (radius * 0.75) * Math.cos(textAngle);
+        const textY = (radius * 0.75) * Math.sin(textAngle);
 
         // Draw the percentage text
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = textColor;
         ctx.font = '16px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -52,7 +55,7 @@ export default function drawPieChart(data, title, colors) {
     ctx.restore();
 
     // Draw legend
-    const legendX = width / 2 + radius + padding / 2; // Move legend closer to the chart
+    const legendX = width / 2 + radius + padding / 2;
     const legendY = padding;
     const legendBoxSize = 20;
     const legendSpacing = 10;
@@ -65,7 +68,7 @@ export default function drawPieChart(data, title, colors) {
         ctx.fillRect(legendX, legendItemY, legendBoxSize, legendBoxSize);
 
         // Draw legend text
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = textColor;
         ctx.font = '16px Arial';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
@@ -74,7 +77,7 @@ export default function drawPieChart(data, title, colors) {
 
     // Draw title
     if (title) {
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = textColor;
         ctx.font = '24px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';

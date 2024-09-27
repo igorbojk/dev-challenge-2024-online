@@ -11,6 +11,8 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
     const height = canvas.clientHeight;
     const padding =  70;
     const legendHeight = 50; // Height reserved for the legend
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    const textColor = isDarkTheme ? '#FFF' : '#000';
 
     ctx.clearRect(0, 0, width, height);
 
@@ -40,7 +42,7 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
         ctx.lineTo(width - padding, y);
         ctx.strokeStyle = '#e0e0e0';
         ctx.stroke();
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = textColor;
         ctx.textAlign = 'right';
         ctx.fillText(value.toFixed(2), padding - 10, y + 3);
     }
@@ -62,7 +64,7 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
         });
     });
 
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = textColor;
     ctx.textAlign = 'center';
     labels.forEach((label, index) => {
         ctx.fillText(label, padding + index * barSpacing + barSpacing / 2, height - padding - legendHeight + 20);
@@ -89,7 +91,7 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
         ctx.fillRect(legendItemX, legendY, legendBoxSize, legendBoxSize);
 
         // Draw legend text
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = textColor;
         ctx.font = '16px Arial';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';

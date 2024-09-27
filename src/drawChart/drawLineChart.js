@@ -21,6 +21,9 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     const xStep = (width - 2 * padding) / (labels.length - 1);
     const yScale = (height - 2 * padding) / (maxVal - minVal);
 
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    const textColor = isDarkTheme ? '#FFF' : '#000'
+
     // Draw horizontal grid lines and values
     const numGridLines = 5;
     for (let i = 0; i <= numGridLines; i++) {
@@ -31,7 +34,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
         ctx.lineTo(width - padding, y);
         ctx.strokeStyle = '#e0e0e0';
         ctx.stroke();
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = textColor;
         ctx.textAlign = 'right';
         ctx.fillText(value.toFixed(2), padding - 10, y + 3);
     }
@@ -44,7 +47,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
         ctx.lineTo(x, height - padding);
         ctx.strokeStyle = '#e0e0e0';
         ctx.stroke();
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = textColor;
         ctx.textAlign = 'center';
         ctx.fillText(label, x, height - padding + 20);
     });
@@ -82,7 +85,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     });
 
     // Draw axes and labels
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = textColor;
     ctx.textAlign = 'center';
     labels.forEach((label, index) => {
         const x = padding + index * xStep;
