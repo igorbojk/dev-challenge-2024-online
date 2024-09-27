@@ -19,68 +19,97 @@ export default function drawPieChart(data, title, colors) {
     ctx.translate(width / 2, height / 2 + titlePadding / 2);
 
     const total = data.slice(1).reduce((acc, val) => acc + Number(val[1] || 0), 0);
-    let startAngle = 0;
+    const angles = data.slice(1).map(value => (Number(value[1]) / total) * 2 * Math.PI);
 
     const isDarkTheme = document.body.classList.contains('dark-theme');
     const textColor = isDarkTheme ? '#FFF' : '#000';
 
-    data.slice(1).forEach((value, index) => {
-        const sliceValue = Number(value[1]);
-        const sliceAngle = (sliceValue / total) * 2 * Math.PI;
-        const percentage = ((sliceValue / total) * 100).toFixed(2);
+    let progress = 0;
+    const totalSteps = 200;
+    const step = 1 / totalSteps;
 
-        // Draw the slice
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.arc(0, 0, radius, startAngle, startAngle + sliceAngle);
-        ctx.closePath();
-        ctx.fillStyle = colors[index % colors.length];
-        ctx.fill();
+    const drawLegend = () => {
+        // Draw legend
+        const legendX = width / 2 + radius + padding / 2;
+        const legendY = padding;
+        const legendBoxSize = 20;
+        const legendSpacing = 10;
 
-        // Calculate the position for the percentage text
-        const textAngle = startAngle + sliceAngle / 2;
-        const textX = (radius * 0.75) * Math.cos(textAngle);
-        const textY = (radius * 0.75) * Math.sin(textAngle);
+        data.slice(1).forEach((value, index) => {
+            const legendItemY = legendY + index * (legendBoxSize + legendSpacing);
 
-        // Draw the percentage text
-        ctx.fillStyle = textColor;
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`${percentage}%`, textX, textY);
+            // Draw legend color box
+            ctx.fillStyle = colors[index % colors.length];
+            ctx.fillRect(legendX, legendItemY, legendBoxSize, legendBoxSize);
 
-        startAngle += sliceAngle;
-    });
+            // Draw legend text
+            ctx.fillStyle = textColor;
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(value[0], legendX + legendBoxSize + legendSpacing, legendItemY + legendBoxSize / 2);
+        });
+    };
 
-    ctx.restore();
+    const animate = () => {
+        progress += step;
+        if (progress > 1) progress = 1;
 
-    // Draw legend
-    const legendX = width / 2 + radius + padding / 2;
-    const legendY = padding;
-    const legendBoxSize = 20;
-    const legendSpacing = 10;
+        ctx.clearRect(-width / 2, -height / 2 - titlePadding / 2, width / 2 + radius + padding / 2, height);
 
-    data.slice(1).forEach((value, index) => {
-        const legendItemY = legendY + index * (legendBoxSize + legendSpacing);
+        let startAngle = 0;
+        let endAngle = 0;
+        angles.forEach((angle, index) => {
+            endAngle += angle;
+            if (endAngle > 2 * Math.PI * progress) {
+                endAngle = 2 * Math.PI * progress;
+            }
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, radius, startAngle, endAngle);
+            ctx.closePath();
+            ctx.fillStyle = colors[index % colors.length];
+            ctx.fill();
+            startAngle = endAngle;
+        });
 
-        // Draw legend color box
-        ctx.fillStyle = colors[index % colors.length];
-        ctx.fillRect(legendX, legendItemY, legendBoxSize, legendBoxSize);
+        // Draw title
+        if (title) {
+            ctx.fillStyle = textColor;
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(title, 0, -height / 2 + basePadding / 2);
+        }
 
-        // Draw legend text
-        ctx.fillStyle = textColor;
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(value[0], legendX + legendBoxSize + legendSpacing, legendItemY + legendBoxSize / 2);
-    });
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            // Draw percentages
+            startAngle = 0;
+            endAngle = 0;
+            angles.forEach((angle, index) => {
+                endAngle += angle;
+                const textAngle = startAngle + (endAngle - startAngle) / 2;
+                const textX = (radius * 0.75) * Math.cos(textAngle);
+                const textY = (radius * 0.75) * Math.sin(textAngle);
+                const percentage = ((Number(data[index + 1][1]) / total) * 100).toFixed(2);
 
-    // Draw title
-    if (title) {
-        ctx.fillStyle = textColor;
-        ctx.font = '24px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(title, width / 2, basePadding / 2);
-    }
+                // Draw the percentage text
+                ctx.fillStyle = textColor;
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${percentage}%`, textX, textY);
+
+                startAngle = endAngle;
+            });
+
+            ctx.restore();
+            // Draw legend after animation completes
+            drawLegend();
+        }
+    };
+
+    animate();
 }

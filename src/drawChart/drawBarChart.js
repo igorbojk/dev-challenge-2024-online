@@ -9,7 +9,7 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const padding =  70;
+    const padding = 70;
     const legendHeight = 50; // Height reserved for the legend
     const isDarkTheme = document.body.classList.contains('dark-theme');
     const textColor = isDarkTheme ? '#FFF' : '#000';
@@ -34,78 +34,104 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
     }
 
     const numGridLines = 5;
-    for (let i = 0; i <= numGridLines; i++) {
-        const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
-        const value = i * (maxVal / numGridLines);
-        ctx.beginPath();
-        ctx.moveTo(padding, y);
-        ctx.lineTo(width - padding, y);
-        ctx.strokeStyle = '#e0e0e0';
-        ctx.stroke();
+    const totalSteps = 70; // Increased number of steps for smoother animation
+    const step = 1 / totalSteps;
+    let progress = 0;
+
+    // Draw static elements (grid lines, labels, axes, and legend)
+    const drawStaticElements = () => {
+
+        // Draw axes and labels
         ctx.fillStyle = textColor;
-        ctx.textAlign = 'right';
-        ctx.fillText(value.toFixed(2), padding - 10, y + 3);
-    }
-
-    values.forEach((row, rowIndex) => {
-        const activeValues = row.filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked);
-        const totalActiveWidth = activeValues.length * barThickness;
-        const groupOffset = (barSpacing - totalActiveWidth) / 2;
-
-        row.forEach((value, colIndex) => {
-            const barEnabled = document.getElementById(`barEnabled${colIndex}`).checked;
-            if (!barEnabled) return;
-
-            const barHeight = (value / maxVal) * (height - 2 * padding - legendHeight);
-            const color = colorsPalette[colIndex % colorsPalette.length];
-            const barX = padding + rowIndex * barSpacing + groupOffset + activeValues.indexOf(value) * barThickness;
-            ctx.fillStyle = color;
-            ctx.fillRect(barX, height - padding - legendHeight - barHeight, barThickness, barHeight);
+        ctx.textAlign = 'center';
+        labels.forEach((label, index) => {
+            ctx.fillText(label, padding + index * barSpacing + barSpacing / 2, height - padding - legendHeight + 20);
         });
-    });
+        ctx.save();
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(yAxisName, -height / 2, 20); // Adjusted position of Y-Axis name
+        ctx.restore();
+        ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
+        ctx.fillText(title, width / 2, padding - 20);
 
-    ctx.fillStyle = textColor;
-    ctx.textAlign = 'center';
-    labels.forEach((label, index) => {
-        ctx.fillText(label, padding + index * barSpacing + barSpacing / 2, height - padding - legendHeight + 20);
-    });
-    ctx.save();
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, 20); // Adjusted position of Y-Axis name
-    ctx.restore();
-    ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
-    ctx.fillText(title, width / 2, padding - 20);
+        // Draw legend
+        const legendX = padding;
+        const legendY = height - padding - legendHeight + (xAxisName ? 50 : 30); // Increase this value to move the legend lower if X-Axis name is present
+        const legendBoxSize = 20;
+        const legendSpacing = 10;
+        const legendWidth = (width - 2 * padding) / activeColumnsCount; // Divide width equally
 
-    // Draw legend
-    const legendX = padding;
-    const legendY = height - padding - legendHeight + (xAxisName ? 50 : 30); // Increase this value to move the legend lower if X-Axis name is present
-    const legendBoxSize = 20;
-    const legendSpacing = 10;
-    const legendWidth = (width - 2 * padding) / activeColumnsCount; // Divide width equally
+        activeColumns.forEach((col, index) => {
+            const legendItemX = legendX + index * legendWidth; // Adjust spacing as needed
 
-    activeColumns.forEach((col, index) => {
-        const legendItemX = legendX + index * legendWidth; // Adjust spacing as needed
+            // Draw legend color box
+            ctx.fillStyle = col.color;
+            ctx.fillRect(legendItemX, legendY, legendBoxSize, legendBoxSize);
 
-        // Draw legend color box
-        ctx.fillStyle = col.color;
-        ctx.fillRect(legendItemX, legendY, legendBoxSize, legendBoxSize);
+            // Draw legend text
+            ctx.fillStyle = textColor;
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
 
-        // Draw legend text
-        ctx.fillStyle = textColor;
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-
-        // Measure text and add ellipsis if necessary
-        let displayText = col.label;
-        const textWidth = ctx.measureText(displayText).width;
-        if (textWidth > legendWidth - legendBoxSize - legendSpacing) {
-            while (ctx.measureText(displayText + '...').width > legendWidth - legendBoxSize - legendSpacing && displayText.length > 0) {
-                displayText = displayText.slice(0, -1);
+            // Measure text and add ellipsis if necessary
+            let displayText = col.label;
+            const textWidth = ctx.measureText(displayText).width;
+            if (textWidth > legendWidth - legendBoxSize - legendSpacing) {
+                while (ctx.measureText(displayText + '...').width > legendWidth - legendBoxSize - legendSpacing && displayText.length > 0) {
+                    displayText = displayText.slice(0, -1);
+                }
+                displayText += '...';
             }
-            displayText += '...';
+
+            ctx.fillText(displayText, legendItemX + legendBoxSize + legendSpacing, legendY + legendBoxSize / 2);
+        });
+    };
+
+    // Draw animated bars
+    const animate = () => {
+        progress += step;
+        if (progress > 1) progress = 1;
+
+        ctx.clearRect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
+
+        // Draw grid lines
+        for (let i = 0; i <= numGridLines; i++) {
+            const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
+            const value = i * (maxVal / numGridLines);
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.stroke();
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'right';
+            ctx.fillText(value.toFixed(2), padding - 10, y + 3);
         }
 
-        ctx.fillText(displayText, legendItemX + legendBoxSize + legendSpacing, legendY + legendBoxSize / 2);
-    });
+        // Draw bars for each set of values
+        values.forEach((row, rowIndex) => {
+            const activeValues = row.filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked);
+            const totalActiveWidth = activeValues.length * barThickness;
+            const groupOffset = (barSpacing - totalActiveWidth) / 2;
+
+            row.forEach((value, colIndex) => {
+                const barEnabled = document.getElementById(`barEnabled${colIndex}`).checked;
+                if (!barEnabled) return;
+
+                const barHeight = (value / maxVal) * (height - 2 * padding - legendHeight) * progress;
+                const color = colorsPalette[colIndex % colorsPalette.length];
+                const barX = padding + rowIndex * barSpacing + groupOffset + activeValues.indexOf(value) * barThickness;
+                ctx.fillStyle = color;
+                ctx.fillRect(barX, height - padding - legendHeight - barHeight, barThickness, barHeight);
+            });
+        });
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    };
+
+    drawStaticElements();
+    animate();
 }

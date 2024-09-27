@@ -56,14 +56,17 @@ const handleInputChange = debounce(() => {
 }, 500);
 
 const handleChartTypeChange = () => {
+    const chartType = elements.chartTypeSelect.value;
+
+    elements.lineSettings.style.display = chartType === 'line' ? 'block' : 'none';
+    elements.barSettings.style.display = chartType === 'bar' ? 'block' : 'none';
+    elements.xAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
+    elements.yAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
+
     if (viewState === 'chart') {
-        const chartType = elements.chartTypeSelect.value;
 
-        elements.lineSettings.style.display = chartType === 'line' ? 'block' : 'none';
-        elements.barSettings.style.display = chartType === 'bar' ? 'block' : 'none';
 
-        elements.xAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
-        elements.yAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
+
 
         drawChart();
     }

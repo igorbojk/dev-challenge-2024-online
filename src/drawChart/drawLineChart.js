@@ -22,7 +22,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     const yScale = (height - 2 * padding) / (maxVal - minVal);
 
     const isDarkTheme = document.body.classList.contains('dark-theme');
-    const textColor = isDarkTheme ? '#FFF' : '#000'
+    const textColor = isDarkTheme ? '#FFF' : '#000';
 
     // Draw horizontal grid lines and values
     const numGridLines = 5;
@@ -52,37 +52,92 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
         ctx.fillText(label, x, height - padding + 20);
     });
 
+    // Animation variables
+    let progress = 0;
+    const totalSteps = 200; // Increased number of steps for smoother animation
+    const step = 1 / totalSteps;
 
-    // Draw lines for each set of values
-    values[0].forEach((_, lineIndex) => {
-        const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
-        if (!enabled) return;
+    const animate = () => {
+        progress += step;
+        if (progress > 1) progress = 1;
 
-        const color = document.getElementById(`lineColor${lineIndex}`).value;
-        const style = document.getElementById(`lineStyle${lineIndex}`).value;
-        const lineThickness = document.getElementById(`lineThickness${lineIndex}`).value;
+        ctx.clearRect(padding, padding, width - 2 * padding, height - 2 * padding);
 
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = lineThickness;
-        if (style === 'dashed') {
-            ctx.setLineDash([10, 5]);
-        } else if (style === 'dashdot') {
-            ctx.setLineDash([10, 5, 2, 5]);
-        } else {
-            ctx.setLineDash([]);
+        // Redraw grid lines
+        for (let i = 0; i <= numGridLines; i++) {
+            const y = height - padding - (i * (height - 2 * padding) / numGridLines);
+            const value = minVal + i * (maxVal - minVal) / numGridLines;
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.stroke();
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'right';
+            ctx.fillText(value.toFixed(2), padding - 10, y + 3);
         }
-        values.forEach((row, index) => {
+
+        labels.forEach((label, index) => {
             const x = padding + index * xStep;
-            const y = height - padding - (row[lineIndex] - minVal) * yScale;
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
+            ctx.beginPath();
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, height - padding);
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.stroke();
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x, height - padding + 20);
         });
-        ctx.stroke();
-    });
+
+        // Draw lines for each set of values
+        values[0].forEach((_, lineIndex) => {
+            const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
+            if (!enabled) return;
+
+            const color = document.getElementById(`lineColor${lineIndex}`).value;
+            const style = document.getElementById(`lineStyle${lineIndex}`).value;
+            const lineThickness = document.getElementById(`lineThickness${lineIndex}`).value;
+
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineThickness;
+            if (style === 'dashed') {
+                ctx.setLineDash([10, 5]);
+            } else if (style === 'dashdot') {
+                ctx.setLineDash([10, 5, 2, 5]);
+            } else {
+                ctx.setLineDash([]);
+            }
+
+            let prevX = padding;
+            let prevY = height - padding - (values[0][lineIndex] - minVal) * yScale;
+            ctx.moveTo(prevX, prevY);
+
+            for (let i = 1; i < labels.length; i++) {
+                const x = padding + i * xStep;
+                const y = height - padding - (values[i][lineIndex] - minVal) * yScale;
+                const currentProgress = progress * (labels.length - 1);
+                if (i <= currentProgress) {
+                    ctx.lineTo(x, y);
+                } else {
+                    const partialProgress = currentProgress - (i - 1);
+                    const partialX = prevX + (x - prevX) * partialProgress;
+                    const partialY = prevY + (y - prevY) * partialProgress;
+                    ctx.lineTo(partialX, partialY);
+                    break;
+                }
+                prevX = x;
+                prevY = y;
+            }
+            ctx.stroke();
+        });
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    };
+
+    animate();
 
     // Draw axes and labels
     ctx.fillStyle = textColor;
