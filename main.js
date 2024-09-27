@@ -48,6 +48,20 @@ const yAxisNameElement = document.getElementById('yAxisNameElement');
 const asideElement = document.querySelector('aside');
 
 
+// Debounce function
+const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
+// Event handler for input changes
+const handleInputChange = debounce(() => {
+    drawChart();
+}, 500);
+
 const handleChartTypeChange = () => {
     const chartType = document.getElementById('chartType').value;
 
@@ -439,19 +453,6 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// Debounce function
-const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), delay);
-    };
-};
-
-// Event handler for input changes
-const handleInputChange = debounce(() => {
-    drawChart();
-}, 500);
 
 // Add event listeners to the input fields
 document.getElementById('chartTitle').addEventListener('input', handleInputChange);
@@ -477,6 +478,3 @@ const lineChartObserver = new MutationObserver(addDynamicEventListenersForLineCh
 const barChartObserver = new MutationObserver(addDynamicEventListenersForBarChart);
 lineChartObserver.observe(lineSettings, { childList: true, subtree: true });
 barChartObserver.observe(barSettings, { childList: true, subtree: true });
-
-// Initial call to add event listeners to existing inputs
-addDynamicEventListeners();
