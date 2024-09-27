@@ -11,42 +11,35 @@ import { exportBarChartAsSvg } from "./src/export/exportBarChartAsSvg.js";
 import { exportPieChartAsSvg } from "./src/export/exportPieChartAsSvg.js";
 
 let data = [];
-
-const colorsPalette = [
-    '#4E79A7',
-    '#F28E2B',
-    '#E15759',
-    '#76B7B2',
-    '#59A14F'
-];
-
+const colorsPalette = ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'];
 let viewState = 'upload'; // 'upload', 'preview', 'chart';
 
 // Elements
-const chartTypeSelect = document.getElementById('chartType');
-const lineSettings = document.getElementById('lineSettings');
-const barSettings = document.getElementById('barSettings');
-const drawChartButton = document.getElementById('drawChartButton');
-const proceedButton = document.getElementById('proceedButton');
-const exportPNGButton = document.getElementById('exportPNG');
-const exportSVGButton = document.getElementById('exportSVG');
-const exportPDFButton = document.getElementById('exportPDF');
-const printChartButton = document.getElementById('printChart');
-const themeIcon = document.getElementById('themeIcon');
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const previewSection = document.getElementById('previewSection');
-const uploadSection = document.getElementById('uploadSection');
-const resetButton = document.getElementById('resetButton');
-const settingsButton = document.getElementById('settingsButton');
-const actionsBlock = document.querySelector('.actions');
-const previewTable = document.getElementById('dataPreview');
-const chartSection = document.getElementById('chartSection');
-const closeBtn = document.getElementById('closeBtn');
-const xAxisNameElement = document.getElementById('xAxisNameElement');
-const yAxisNameElement = document.getElementById('yAxisNameElement');
-const asideElement = document.querySelector('aside');
-
+const elements = {
+    chartTypeSelect: document.getElementById('chartType'),
+    lineSettings: document.getElementById('lineSettings'),
+    barSettings: document.getElementById('barSettings'),
+    drawChartButton: document.getElementById('drawChartButton'),
+    proceedButton: document.getElementById('proceedButton'),
+    exportPNGButton: document.getElementById('exportPNG'),
+    exportSVGButton: document.getElementById('exportSVG'),
+    exportPDFButton: document.getElementById('exportPDF'),
+    printChartButton: document.getElementById('printChart'),
+    themeIcon: document.getElementById('themeIcon'),
+    dropZone: document.getElementById('dropZone'),
+    fileInput: document.getElementById('fileInput'),
+    previewSection: document.getElementById('previewSection'),
+    uploadSection: document.getElementById('uploadSection'),
+    resetButton: document.getElementById('resetButton'),
+    settingsButton: document.getElementById('settingsButton'),
+    actionsBlock: document.querySelector('.actions'),
+    previewTable: document.getElementById('dataPreview'),
+    chartSection: document.getElementById('chartSection'),
+    closeBtn: document.getElementById('closeBtn'),
+    xAxisNameElement: document.getElementById('xAxisNameElement'),
+    yAxisNameElement: document.getElementById('yAxisNameElement'),
+    asideElement: document.querySelector('aside')
+};
 
 // Debounce function
 const debounce = (func, delay) => {
@@ -63,26 +56,28 @@ const handleInputChange = debounce(() => {
 }, 500);
 
 const handleChartTypeChange = () => {
-    const chartType = document.getElementById('chartType').value;
-
-    lineSettings.style.display = chartType === 'line' ? 'block' : 'none';
-    barSettings.style.display = chartType === 'bar' ? 'block' : 'none';
-
-    xAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
-    yAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
-    if (chartType === 'pie') {
-        settingsButton.classList.add('hidden');
-    } else {
-        settingsButton.classList.remove('hidden');
-    }
-
     if (viewState === 'chart') {
+        const chartType = elements.chartTypeSelect.value;
+
+        elements.lineSettings.style.display = chartType === 'line' ? 'block' : 'none';
+        elements.barSettings.style.display = chartType === 'bar' ? 'block' : 'none';
+
+        elements.xAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
+        elements.yAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
+
         drawChart();
     }
 };
 
 const drawChart = () => {
-    const chartType = document.getElementById('chartType').value;
+
+    const chartType = elements.chartTypeSelect.value;
+
+    if (chartType === 'pie') {
+        elements.settingsButton.classList.add('hidden');
+    } else {
+        elements.settingsButton.classList.remove('hidden');
+    }
     const chartTitle = document.getElementById('chartTitle').value;
     const xAxisName = document.getElementById('xAxisName').value;
     const yAxisName = document.getElementById('yAxisName').value;
@@ -90,21 +85,16 @@ const drawChart = () => {
     if (chartType === 'line') {
         drawLineChart(data, chartTitle, xAxisName, yAxisName);
     } else if (chartType === 'bar') {
-        const barThickness = document.getElementById('barThickness');
-
-        if (barThickness) {
-            barThickness.value = 0;
-        }
-        drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness.value, colorsPalette);
+        const barThickness = document.getElementById('barThickness').value;
+        drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
     } else if (chartType === 'pie') {
         drawPieChart(data, chartTitle, colorsPalette);
     }
 };
 
 const proceedData = () => {
-    const fileInput = document.getElementById('fileInput');
+    const fileInput = elements.fileInput;
     const manualDataInput = document.getElementById('manualDataInput').value;
-
 
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
@@ -140,7 +130,7 @@ const validateData = (data) => {
 
 const previewData = (data) => {
     changeView('preview');
-    previewTable.innerHTML = '';
+    elements.previewTable.innerHTML = '';
 
     // Create table header
     const thead = document.createElement('thead');
@@ -151,7 +141,7 @@ const previewData = (data) => {
         headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);
-    previewTable.appendChild(thead);
+    elements.previewTable.appendChild(thead);
 
     // Create table body
     const tbody = document.createElement('tbody');
@@ -164,11 +154,15 @@ const previewData = (data) => {
         });
         tbody.appendChild(tr);
     });
-    previewTable.appendChild(tbody);
+    elements.previewTable.appendChild(tbody);
 
-    const lineSettingsContainer = document.getElementById('lineSettings');
+    setupLineSettings(data[0].slice(1));
+    setupBarSettings(data[0].slice(1));
+};
+
+const setupLineSettings = (headers) => {
+    const lineSettingsContainer = elements.lineSettings;
     lineSettingsContainer.innerHTML = '';
-    const headers = data[0].slice(1);
     headers.forEach((header, index) => {
         const lineSettingDiv = document.createElement('div');
         lineSettingDiv.classList.add('chart-setting-element');
@@ -196,8 +190,10 @@ const previewData = (data) => {
         `;
         lineSettingsContainer.appendChild(lineSettingDiv);
     });
+};
 
-    const barSettingsContainer = document.getElementById('barSettings');
+const setupBarSettings = (headers) => {
+    const barSettingsContainer = elements.barSettings;
     barSettingsContainer.innerHTML = '';
     const barSettingDiv = document.createElement('div');
     barSettingDiv.classList.add('chart-setting-element');
@@ -302,33 +298,32 @@ const printGraph = () => {
 };
 
 const toggleTheme = () => {
-    const body = document.body;
-    body.classList.toggle('light-theme');
-    body.classList.toggle('dark-theme');
+    document.body.classList.toggle('light-theme');
+    document.body.classList.toggle('dark-theme');
     drawChart();
 };
 
 const handleDragOver = (event) => {
     event.preventDefault();
-    dropZone.classList.add('dragover');
+    elements.dropZone.classList.add('dragover');
 };
 
 const handleDragLeave = () => {
-    dropZone.classList.remove('dragover');
+    elements.dropZone.classList.remove('dragover');
 };
 
 const handleDrop = (event) => {
     event.preventDefault();
-    dropZone.classList.remove('dragover');
+    elements.dropZone.classList.remove('dragover');
     const files = event.dataTransfer.files;
     if (files.length > 0) {
         const validExtensions = ['csv', 'xlsx', 'json'];
         const file = files[0];
         const fileExtension = file.name.split('.').pop().toLowerCase();
         if (validExtensions.includes(fileExtension)) {
-            fileInput.files = files;
+            elements.fileInput.files = files;
             const event = new Event('change');
-            fileInput.dispatchEvent(event);
+            elements.fileInput.dispatchEvent(event);
         } else {
             alert('Invalid file type. Please upload a .csv, .xlsx, or .json file.');
         }
@@ -345,7 +340,7 @@ const handleKeyDown = (event) => {
 };
 
 const canvasToSVG = () => {
-    const chartType = document.getElementById('chartType').value;
+    const chartType = elements.chartTypeSelect.value;
     const chartTitle = document.getElementById('chartTitle').value;
     const xAxisName = document.getElementById('xAxisName').value;
     const yAxisName = document.getElementById('yAxisName').value;
@@ -353,106 +348,84 @@ const canvasToSVG = () => {
     if (chartType === 'line') {
         return exportLineChartAsSvg(data, chartTitle, xAxisName, yAxisName);
     } else if (chartType === 'bar') {
-        const barThickness = document.getElementById('barThickness');
-
-        return exportBarChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness.value, colorsPalette);
+        const barThickness = document.getElementById('barThickness').value;
+        return exportBarChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
     } else if (chartType === 'pie') {
         return exportPieChartAsSvg(data, chartTitle, colorsPalette);
     }
 };
 
-
-function changeView(view) {
+const changeView = (view) => {
     viewState = view;
     switch (view) {
         case 'upload':
-            asideElement.classList.remove('active');
-
-            // Clear the data in the table
-            const dataPreview = document.getElementById('dataPreview');
-            dataPreview.innerHTML = '';
-
-            // Clear the graph
+            elements.asideElement.classList.remove('active');
+            elements.previewTable.innerHTML = '';
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const barThickness = document.getElementById('barThickness');
-
-            if (barThickness) {
-                barThickness.value = 0;
-            }
-
-            // Reset any data variables (assuming you have some global variables for data)
+            document.getElementById('barThickness').value = 0;
             window.chartData = null;
             window.chart = null;
-
-            // Clear file input and manual data
-            const fileInput = document.getElementById('fileInput');
-            const manualDataInput = document.getElementById('manualDataInput');
-            fileInput.value = '';
-            manualDataInput.value = '';
-
-            // Hide sections that should be hidden after reset
-            uploadSection.classList.remove('hidden');
-            previewSection.classList.add('hidden');
-            actionsBlock.classList.add('hidden');
-            chartSection.classList.add('hidden');
-            settingsButton.classList.add('hidden');
+            elements.fileInput.value = '';
+            document.getElementById('manualDataInput').value = '';
+            elements.uploadSection.classList.remove('hidden');
+            elements.previewSection.classList.add('hidden');
+            elements.actionsBlock.classList.add('hidden');
+            elements.chartSection.classList.add('hidden');
+            elements.settingsButton.classList.add('hidden');
             break;
         case 'preview':
-            settingsButton.classList.add('hidden');
-            uploadSection.classList.add('hidden');
-            previewSection.classList.remove('hidden');
-            actionsBlock.classList.remove('hidden');
-            drawChartButton.classList.remove('hidden');
+            elements.settingsButton.classList.add('hidden');
+            elements.uploadSection.classList.add('hidden');
+            elements.previewSection.classList.remove('hidden');
+            elements.actionsBlock.classList.remove('hidden');
+            elements.drawChartButton.classList.remove('hidden');
             break;
         case 'chart':
         default:
-            drawChartButton.classList.add('hidden');
-            previewSection.classList.add('hidden');
-            chartSection.classList.remove('hidden');
-            settingsButton.classList.remove('hidden');
+            elements.drawChartButton.classList.add('hidden');
+            elements.previewSection.classList.add('hidden');
+            elements.chartSection.classList.remove('hidden');
+            elements.settingsButton.classList.remove('hidden');
             break;
     }
-
-}
+};
 
 // Handlers
-chartTypeSelect.addEventListener('change', handleChartTypeChange);
-drawChartButton.addEventListener('click', () => {
+elements.chartTypeSelect.addEventListener('change', handleChartTypeChange);
+elements.drawChartButton.addEventListener('click', () => {
     changeView('chart');
     drawChart();
 });
-proceedButton.addEventListener('click', proceedData);
-exportPNGButton.addEventListener('click', exportPNG);
-exportSVGButton.addEventListener('click', exportSVG);
-exportPDFButton.addEventListener('click', exportPDF);
-printChartButton.addEventListener('click', printGraph);
-themeIcon.addEventListener('click', toggleTheme);
-dropZone.addEventListener('dragover', handleDragOver);
-dropZone.addEventListener('dragleave', handleDragLeave);
-dropZone.addEventListener('drop', handleDrop);
+elements.proceedButton.addEventListener('click', proceedData);
+elements.exportPNGButton.addEventListener('click', exportPNG);
+elements.exportSVGButton.addEventListener('click', exportSVG);
+elements.exportPDFButton.addEventListener('click', exportPDF);
+elements.printChartButton.addEventListener('click', printGraph);
+elements.themeIcon.addEventListener('click', toggleTheme);
+elements.dropZone.addEventListener('dragover', handleDragOver);
+elements.dropZone.addEventListener('dragleave', handleDragLeave);
+elements.dropZone.addEventListener('drop', handleDrop);
 document.addEventListener('keydown', handleKeyDown);
 
-resetButton.addEventListener('click', () => {
+elements.resetButton.addEventListener('click', () => {
     changeView('upload');
 });
 
-settingsButton.addEventListener('click', () => {
-    asideElement.classList.toggle('active');
+elements.settingsButton.addEventListener('click', () => {
+    elements.asideElement.classList.toggle('active');
 });
 
-
-closeBtn.addEventListener('click', () => {
-    asideElement.classList.remove('active');
-})
+elements.closeBtn.addEventListener('click', () => {
+    elements.asideElement.classList.remove('active');
+});
 
 document.addEventListener('click', (event) => {
-    if (!asideElement.contains(event.target) && !settingsButton.contains(event.target)) {
-        asideElement.classList.remove('active');
+    if (!elements.asideElement.contains(event.target) && !elements.settingsButton.contains(event.target)) {
+        elements.asideElement.classList.remove('active');
     }
 });
-
 
 // Add event listeners to the input fields
 document.getElementById('chartTitle').addEventListener('input', handleInputChange);
@@ -461,13 +434,13 @@ document.getElementById('yAxisName').addEventListener('input', handleInputChange
 
 // Function to add event listeners to dynamically added inputs
 const addDynamicEventListenersForLineChart = () => {
-    lineSettings.querySelectorAll('input, select, textarea').forEach(input => {
+    elements.lineSettings.querySelectorAll('input, select, textarea').forEach(input => {
         input.removeEventListener('input', handleInputChange);
         input.addEventListener('input', handleInputChange);
     });
 };
 const addDynamicEventListenersForBarChart = () => {
-    barSettings.querySelectorAll('input, select').forEach(input => {
+    elements.barSettings.querySelectorAll('input, select').forEach(input => {
         input.removeEventListener('input', handleInputChange);
         input.addEventListener('input', handleInputChange);
     });
@@ -476,5 +449,5 @@ const addDynamicEventListenersForBarChart = () => {
 // Observe changes in the lineSettings element
 const lineChartObserver = new MutationObserver(addDynamicEventListenersForLineChart);
 const barChartObserver = new MutationObserver(addDynamicEventListenersForBarChart);
-lineChartObserver.observe(lineSettings, { childList: true, subtree: true });
-barChartObserver.observe(barSettings, { childList: true, subtree: true });
+lineChartObserver.observe(elements.lineSettings, { childList: true, subtree: true });
+barChartObserver.observe(elements.barSettings, { childList: true, subtree: true });
