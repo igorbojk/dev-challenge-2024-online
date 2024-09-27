@@ -43,6 +43,8 @@ const actionsBlock = document.querySelector('.actions');
 const previewTable = document.getElementById('dataPreview');
 const chartSection = document.getElementById('chartSection');
 const closeBtn = document.getElementById('closeBtn');
+const xAxisNameElement = document.getElementById('xAxisNameElement');
+const yAxisNameElement = document.getElementById('yAxisNameElement');
 const asideElement = document.querySelector('aside');
 
 
@@ -51,6 +53,9 @@ const handleChartTypeChange = () => {
 
     lineSettings.style.display = chartType === 'line' ? 'block' : 'none';
     barSettings.style.display = chartType === 'bar' ? 'block' : 'none';
+
+    xAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
+    yAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
 };
 
 const drawChart = () => {
@@ -60,12 +65,16 @@ const drawChart = () => {
     const chartTitle = document.getElementById('chartTitle').value;
     const xAxisName = document.getElementById('xAxisName').value;
     const yAxisName = document.getElementById('yAxisName').value;
-    const barThickness = document.getElementById('barThickness').value;
 
     if (chartType === 'line') {
         drawLineChart(data, chartTitle, xAxisName, yAxisName);
     } else if (chartType === 'bar') {
-        drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
+        const barThickness = document.getElementById('barThickness');
+
+        if (barThickness) {
+            barThickness.value = 0;
+        }
+        drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness.value, colorsPalette);
     } else if (chartType === 'pie') {
         drawPieChart(data, chartTitle, colorsPalette);
     }
@@ -141,7 +150,7 @@ const previewData = (data) => {
     const headers = data[0].slice(1);
     headers.forEach((header, index) => {
         const lineSettingDiv = document.createElement('div');
-        lineSettingDiv.classList.add('line-setting-element');
+        lineSettingDiv.classList.add('chart-setting-element');
         lineSettingDiv.innerHTML = `
             <div class="settings">
                 <label for="lineEnabled${index}">${header}:</label>
@@ -170,19 +179,23 @@ const previewData = (data) => {
     const barSettingsContainer = document.getElementById('barSettings');
     barSettingsContainer.innerHTML = '';
     const barSettingDiv = document.createElement('div');
+    barSettingDiv.classList.add('chart-setting-element');
     barSettingDiv.innerHTML = `
-        <label for="barThickness">Bar Thickness:</label>
-        <input type="number" id="barThickness" value="0" min="1">
+        <div class="settings">
+            <label for="barThickness">Bar Thickness:</label>
+            <input type="number" id="barThickness" value="0" min="1">
+        </div>
     `;
     barSettingsContainer.appendChild(barSettingDiv);
 
     headers.forEach((header, index) => {
-        const barSettingDiv = document.createElement('div');
-        barSettingDiv.innerHTML = `
+        const barInnerSettingDiv = document.createElement('div');
+        barInnerSettingDiv.classList.add('settings');
+        barInnerSettingDiv.innerHTML = `
             <label for="barEnabled${index}">Enable ${header}:</label>
             <input type="checkbox" id="barEnabled${index}" checked>
         `;
-        barSettingsContainer.appendChild(barSettingDiv);
+        barSettingDiv.appendChild(barInnerSettingDiv);
     });
 };
 
@@ -298,8 +311,9 @@ const canvasToSVG = () => {
     if (chartType === 'line') {
         return exportLineChartAsSvg(data, chartTitle, xAxisName, yAxisName);
     } else if (chartType === 'bar') {
-        const barThickness = document.getElementById('barThickness').value;
-        return exportBarChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
+        const barThickness = document.getElementById('barThickness');
+
+        return exportBarChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness.value, colorsPalette);
     } else if (chartType === 'pie') {
         return exportPieChartAsSvg(data, chartTitle, colorsPalette);
     }
@@ -320,6 +334,8 @@ function changeView(view) {
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const barThickness = document.getElementById('barThickness');
+
             if (barThickness) {
                 barThickness.value = 0;
             }
@@ -383,7 +399,6 @@ closeBtn.addEventListener('click', () => {
 })
 
 document.addEventListener('click', (event) => {
-    debugger
     if (!asideElement.contains(event.target) && !settingsButton.contains(event.target)) {
         asideElement.classList.remove('active');
     }

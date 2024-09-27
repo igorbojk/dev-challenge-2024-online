@@ -9,7 +9,8 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const padding = 50;
+    const padding =  70;
+    const legendHeight = 50; // Height reserved for the legend
 
     ctx.clearRect(0, 0, width, height);
 
@@ -17,19 +18,22 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
     const values = data.slice(1).map(row => row.slice(1).map(Number));
     const maxVal = Math.max(...values.flat());
     const barSpacing = (width - 2 * padding) / labels.length;
-    const activeColumnsCount = values[0].filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked).length;
-    const defaultBarThickness = Math.max(barSpacing * 0.8 / activeColumnsCount, 1); // Default bar thickness based on spacing, minimum 1
+    const activeColumns = data[0].slice(1).map((label, colIndex) => ({
+        label,
+        enabled: document.getElementById(`barEnabled${colIndex}`).checked,
+        color: colorsPalette[colIndex % colorsPalette.length]
+    })).filter(col => col.enabled);
+    const activeColumnsCount = activeColumns.length;
+    const defaultBarThickness = Math.max(barSpacing * 0.8 / activeColumnsCount, 1);
 
     if (!+barThickness || +barThickness > defaultBarThickness.toFixed()) {
         document.getElementById('barThickness').value = defaultBarThickness.toFixed();
         barThickness = defaultBarThickness;
     }
-    // Use the provided barThickness or the default calculated one
 
-    // Draw horizontal grid lines and values
     const numGridLines = 5;
     for (let i = 0; i <= numGridLines; i++) {
-        const y = height - padding - (i * (height - 2 * padding) / numGridLines);
+        const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
         const value = i * (maxVal / numGridLines);
         ctx.beginPath();
         ctx.moveTo(padding, y);
@@ -42,30 +46,64 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
     }
 
     values.forEach((row, rowIndex) => {
-        const activeColumns = row.filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked);
-        const totalActiveWidth = activeColumns.length * barThickness;
+        const activeValues = row.filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked);
+        const totalActiveWidth = activeValues.length * barThickness;
         const groupOffset = (barSpacing - totalActiveWidth) / 2;
 
         row.forEach((value, colIndex) => {
             const barEnabled = document.getElementById(`barEnabled${colIndex}`).checked;
             if (!barEnabled) return;
 
-            const barHeight = (value / maxVal) * (height - 2 * padding);
-            ctx.fillStyle = colorsPalette[colIndex % colorsPalette.length];
-            const barX = padding + rowIndex * barSpacing + groupOffset + activeColumns.indexOf(value) * barThickness;
-            ctx.fillRect(barX, height - padding - barHeight, barThickness, barHeight);
+            const barHeight = (value / maxVal) * (height - 2 * padding - legendHeight);
+            const color = colorsPalette[colIndex % colorsPalette.length];
+            const barX = padding + rowIndex * barSpacing + groupOffset + activeValues.indexOf(value) * barThickness;
+            ctx.fillStyle = color;
+            ctx.fillRect(barX, height - padding - legendHeight - barHeight, barThickness, barHeight);
         });
     });
 
     ctx.fillStyle = '#000';
     ctx.textAlign = 'center';
     labels.forEach((label, index) => {
-        ctx.fillText(label, padding + index * barSpacing + barSpacing / 2, height - padding + 20);
+        ctx.fillText(label, padding + index * barSpacing + barSpacing / 2, height - padding - legendHeight + 20);
     });
     ctx.save();
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, padding - 10);
+    ctx.fillText(yAxisName, -height / 2, padding - 30); // Adjusted position of Y-Axis name
     ctx.restore();
-    ctx.fillText(xAxisName, width / 2, height - padding + 40);
+    ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
     ctx.fillText(title, width / 2, padding - 20);
+
+    // Draw legend
+    const legendX = padding;
+    const legendY = height - padding - legendHeight + (xAxisName ? 50 : 30); // Increase this value to move the legend lower if X-Axis name is present
+    const legendBoxSize = 20;
+    const legendSpacing = 10;
+    const legendWidth = (width - 2 * padding) / activeColumnsCount; // Divide width equally
+
+    activeColumns.forEach((col, index) => {
+        const legendItemX = legendX + index * legendWidth; // Adjust spacing as needed
+
+        // Draw legend color box
+        ctx.fillStyle = col.color;
+        ctx.fillRect(legendItemX, legendY, legendBoxSize, legendBoxSize);
+
+        // Draw legend text
+        ctx.fillStyle = '#000';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+
+        // Measure text and add ellipsis if necessary
+        let displayText = col.label;
+        const textWidth = ctx.measureText(displayText).width;
+        if (textWidth > legendWidth - legendBoxSize - legendSpacing) {
+            while (ctx.measureText(displayText + '...').width > legendWidth - legendBoxSize - legendSpacing && displayText.length > 0) {
+                displayText = displayText.slice(0, -1);
+            }
+            displayText += '...';
+        }
+
+        ctx.fillText(displayText, legendItemX + legendBoxSize + legendSpacing, legendY + legendBoxSize / 2);
+    });
 }

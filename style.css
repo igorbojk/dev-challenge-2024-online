@@ -366,7 +366,7 @@ input[type="number"] {
   height: 2rem;
 }
 
-.line-setting-element {
+.chart-setting-element {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -375,16 +375,16 @@ input[type="number"] {
   border-bottom: 0.1rem solid #ccc;
 }
 
-.line-setting-element .small-text {
+.chart-setting-element .small-text {
   width: 100%;
 }
 
-.line-setting-element .settings {
+.chart-setting-element .settings {
   display: flex;
   align-items: center;
 }
 
-.line-setting-element .settings> * {
+.chart-setting-element .settings> * {
   width: 50%;
 }
 
