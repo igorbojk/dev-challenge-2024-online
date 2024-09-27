@@ -1,6 +1,7 @@
 import './style.css';
 import drawLineChart from "./src/drawChart/drawLineChart.js";
 import drawBarChart from "./src/drawChart/drawBarChart.js";
+import drawBarChart3d from "./src/drawChart/drawBarChart3d.js";
 import drawPieChart from "./src/drawChart/drawPieChart.js";
 import parseCSV from "./src/parseData/parseCSV.js";
 import parseXLSX from "./src/parseData/parseXLSX.js";
@@ -66,8 +67,6 @@ const handleChartTypeChange = () => {
     if (viewState === 'chart') {
 
 
-
-
         drawChart();
     }
 };
@@ -89,7 +88,8 @@ const drawChart = () => {
         drawLineChart(data, chartTitle, xAxisName, yAxisName);
     } else if (chartType === 'bar') {
         const barThickness = document.getElementById('barThickness').value;
-        drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
+        drawBarChart3d(data,  10, colorsPalette);
+        // drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
     } else if (chartType === 'pie') {
         drawPieChart(data, chartTitle, colorsPalette);
     }
