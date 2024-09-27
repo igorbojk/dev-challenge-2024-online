@@ -101,6 +101,10 @@ button {
   font-size: 1.6rem;
   min-height: 5rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
 }
 
 button.primary {
@@ -321,6 +325,7 @@ body.dark-theme #dataPreview thead {
   select {
     height: 5rem;
     min-width: 15rem;
+    width: 100%;
     padding: 0.8rem;
     font-weight: bold;
   }
@@ -386,11 +391,6 @@ input[type="number"] {
 
 .chart-setting-element .settings> * {
   width: 50%;
-}
-
-
-#settingsButton {
-  width: auto;
 }
 
 aside {

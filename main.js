@@ -56,6 +56,11 @@ const handleChartTypeChange = () => {
 
     xAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
     yAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
+    if (chartType === 'pie') {
+        settingsButton.classList.add('hidden');
+    } else {
+        settingsButton.classList.remove('hidden');
+    }
 
     if (viewState === 'chart') {
         drawChart();
@@ -63,8 +68,6 @@ const handleChartTypeChange = () => {
 };
 
 const drawChart = () => {
-    changeView('chart');
-
     const chartType = document.getElementById('chartType').value;
     const chartTitle = document.getElementById('chartTitle').value;
     const xAxisName = document.getElementById('xAxisName').value;
@@ -380,17 +383,21 @@ function changeView(view) {
             previewSection.classList.add('hidden');
             actionsBlock.classList.add('hidden');
             chartSection.classList.add('hidden');
+            settingsButton.classList.add('hidden');
             break;
         case 'preview':
-
+            settingsButton.classList.add('hidden');
             uploadSection.classList.add('hidden');
             previewSection.classList.remove('hidden');
             actionsBlock.classList.remove('hidden');
+            drawChartButton.classList.remove('hidden');
             break;
         case 'chart':
         default:
+            drawChartButton.classList.add('hidden');
             previewSection.classList.add('hidden');
             chartSection.classList.remove('hidden');
+            settingsButton.classList.remove('hidden');
             break;
     }
 
@@ -398,7 +405,10 @@ function changeView(view) {
 
 // Handlers
 chartTypeSelect.addEventListener('change', handleChartTypeChange);
-drawChartButton.addEventListener('click', drawChart);
+drawChartButton.addEventListener('click', () => {
+    changeView('chart');
+    drawChart();
+});
 proceedButton.addEventListener('click', proceedData);
 exportPNGButton.addEventListener('click', exportPNG);
 exportSVGButton.addEventListener('click', exportSVG);
@@ -428,3 +438,45 @@ document.addEventListener('click', (event) => {
         asideElement.classList.remove('active');
     }
 });
+
+// Debounce function
+const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
+// Event handler for input changes
+const handleInputChange = debounce(() => {
+    drawChart();
+}, 500);
+
+// Add event listeners to the input fields
+document.getElementById('chartTitle').addEventListener('input', handleInputChange);
+document.getElementById('xAxisName').addEventListener('input', handleInputChange);
+document.getElementById('yAxisName').addEventListener('input', handleInputChange);
+
+// Function to add event listeners to dynamically added inputs
+const addDynamicEventListenersForLineChart = () => {
+    lineSettings.querySelectorAll('input, select, textarea').forEach(input => {
+        input.removeEventListener('input', handleInputChange);
+        input.addEventListener('input', handleInputChange);
+    });
+};
+const addDynamicEventListenersForBarChart = () => {
+    barSettings.querySelectorAll('input, select').forEach(input => {
+        input.removeEventListener('input', handleInputChange);
+        input.addEventListener('input', handleInputChange);
+    });
+};
+
+// Observe changes in the lineSettings element
+const lineChartObserver = new MutationObserver(addDynamicEventListenersForLineChart);
+const barChartObserver = new MutationObserver(addDynamicEventListenersForBarChart);
+lineChartObserver.observe(lineSettings, { childList: true, subtree: true });
+barChartObserver.observe(barSettings, { childList: true, subtree: true });
+
+// Initial call to add event listeners to existing inputs
+addDynamicEventListeners();
