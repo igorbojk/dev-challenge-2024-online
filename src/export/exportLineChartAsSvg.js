@@ -1,4 +1,4 @@
-export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
+export default function exportLineChartAsSvg(data, title, xAxisName, yAxisName) {
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('width', '100%');
@@ -8,19 +8,21 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     const padding = 50;
+    const legendHeight = 60;
 
     const labels = data.slice(1).map(row => row[0]);
     const values = data.slice(1).map(row => row.slice(1));
+    const fieldNames = data[0].slice(1);
 
     const maxVal = Math.max(...values.flat());
     const minVal = Math.min(...values.flat());
     const xStep = (width - 2 * padding) / (labels.length - 1);
-    const yScale = (height - 2 * padding) / (maxVal - minVal);
+    const yScale = (height - 2 * padding - legendHeight) / (maxVal - minVal);
 
     // Draw horizontal grid lines and values
     const numGridLines = 5;
     for (let i = 0; i <= numGridLines; i++) {
-        const y = height - padding - (i * (height - 2 * padding) / numGridLines);
+        const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
         const value = minVal + i * (maxVal - minVal) / numGridLines;
 
         const line = document.createElementNS(svgNS, 'line');
@@ -47,13 +49,13 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
         line.setAttribute('x1', x);
         line.setAttribute('y1', padding);
         line.setAttribute('x2', x);
-        line.setAttribute('y2', height - padding);
+        line.setAttribute('y2', height - padding - legendHeight);
         line.setAttribute('stroke', '#e0e0e0');
         svg.appendChild(line);
 
         const text = document.createElementNS(svgNS, 'text');
         text.setAttribute('x', x);
-        text.setAttribute('y', height - padding + 20);
+        text.setAttribute('y', height - padding - legendHeight + 20);
         text.setAttribute('text-anchor', 'middle');
         text.textContent = label;
         svg.appendChild(text);
@@ -71,7 +73,7 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
         const path = document.createElementNS(svgNS, 'path');
         const d = values.map((row, index) => {
             const x = padding + index * xStep;
-            const y = height - padding - (row[lineIndex] - minVal) * yScale;
+            const y = height - padding - legendHeight - (row[lineIndex] - minVal) * yScale;
             return `${index === 0 ? 'M' : 'L'}${x},${y}`;
         }).join(' ');
 
@@ -85,6 +87,19 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
             path.setAttribute('stroke-dasharray', '10,5,2,5');
         }
         svg.appendChild(path);
+
+        // Draw points on the line
+        values.forEach((row, index) => {
+            const x = padding + index * xStep;
+            const y = height - padding - legendHeight - (row[lineIndex] - minVal) * yScale;
+
+            const circle = document.createElementNS(svgNS, 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', 3);
+            circle.setAttribute('fill', color);
+            svg.appendChild(circle);
+        });
     });
 
     // Draw Y-axis label
@@ -99,7 +114,7 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
     // Draw X-axis label
     const xAxisText = document.createElementNS(svgNS, 'text');
     xAxisText.setAttribute('x', width / 2);
-    xAxisText.setAttribute('y', height - padding + 40);
+    xAxisText.setAttribute('y', height - padding - legendHeight + 40);
     xAxisText.setAttribute('text-anchor', 'middle');
     xAxisText.textContent = xAxisName;
     svg.appendChild(xAxisText);
@@ -111,5 +126,40 @@ export default function drawLineChartSVG(data, title, xAxisName, yAxisName) {
     titleText.setAttribute('text-anchor', 'middle');
     titleText.textContent = title;
     svg.appendChild(titleText);
+
+    // Draw legend
+    const legendX = padding;
+    const legendY = height - padding + 10;
+    const legendBoxSize = 20;
+    const legendSpacing = 10;
+    const legendItemWidth = (width - 2 * padding) / fieldNames.length;
+
+    fieldNames.forEach((fieldName, lineIndex) => {
+        const legendItemX = legendX + lineIndex * legendItemWidth;
+
+        const color = document.getElementById(`lineColor${lineIndex}`).value;
+
+        // Draw legend color box
+        const rect = document.createElementNS(svgNS, 'rect');
+        rect.setAttribute('x', legendItemX);
+        rect.setAttribute('y', legendY);
+        rect.setAttribute('width', legendBoxSize);
+        rect.setAttribute('height', legendBoxSize);
+        rect.setAttribute('fill', color);
+        svg.appendChild(rect);
+
+        // Draw legend text
+        const text = document.createElementNS(svgNS, 'text');
+        text.setAttribute('x', legendItemX + legendBoxSize + legendSpacing);
+        text.setAttribute('y', legendY + legendBoxSize / 2);
+        text.setAttribute('alignment-baseline', 'middle');
+        text.setAttribute('font-size', '16px');
+
+        // Truncate text if necessary
+        let displayText = fieldName.length > 15 ? fieldName.substring(0, 15) + '...' : fieldName;
+        text.textContent = displayText;
+        svg.appendChild(text);
+    });
+
     return new XMLSerializer().serializeToString(svg);
 }
