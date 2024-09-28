@@ -43,6 +43,11 @@ const elements = {
     asideElement: document.querySelector('aside')
 };
 
+const getRandomColorFromPalette = () => {
+    const randomIndex = Math.floor(Math.random() * colorsPalette.length);
+    return colorsPalette[randomIndex];
+};
+
 // Debounce function
 const debounce = (func, delay) => {
     let timeout;
@@ -185,7 +190,7 @@ const setupLineSettings = (headers) => {
             </div>
             <div class="settings">
                 <label for="lineColor${index}">Color:</label>
-                <input type="color" id="lineColor${index}" value="#000000">
+                <input type="color" id="lineColor${index}" value="${getRandomColorFromPalette()}">
             </div>
             <div class="settings">
                 <label for="lineStyle${index}">Line Style:</label>
