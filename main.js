@@ -9,6 +9,7 @@ import parseJSON from "./src/parseData/parseJSON.js";
 
 import exportLineChartAsSvg from "./src/export/exportLineChartAsSvg.js";
 import { exportBarChartAsSvg } from "./src/export/exportBarChartAsSvg.js";
+import { exportBar3dChartAsSvg } from "./src/export/exportBar3dChartAsSvg.js";
 import { exportPieChartAsSvg } from "./src/export/exportPieChartAsSvg.js";
 
 let data = [];
@@ -52,7 +53,11 @@ const debounce = (func, delay) => {
 };
 
 // Event handler for input changes
-const handleInputChange = debounce(() => {
+const handleInputChange = debounce((event) => {
+    if (event.target.type === 'checkbox') {
+        document.getElementById('barThickness').value = 0;
+    }
+
     drawChart();
 }, 500);
 
@@ -60,13 +65,11 @@ const handleChartTypeChange = () => {
     const chartType = elements.chartTypeSelect.value;
 
     elements.lineSettings.style.display = chartType === 'line' ? 'block' : 'none';
-    elements.barSettings.style.display = chartType === 'bar' ? 'block' : 'none';
+    elements.barSettings.style.display = ['bar', 'bar-3d'].includes(chartType) ? 'block' : 'none';
     elements.xAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
     elements.yAxisNameElement.style.display = chartType === 'pie' ? 'none' : 'flex';
 
     if (viewState === 'chart') {
-
-
         drawChart();
     }
 };
@@ -88,8 +91,10 @@ const drawChart = () => {
         drawLineChart(data, chartTitle, xAxisName, yAxisName);
     } else if (chartType === 'bar') {
         const barThickness = document.getElementById('barThickness').value;
-        drawBarChart3d(data,  10, colorsPalette);
-        // drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
+        drawBarChart(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
+    } else if (chartType === 'bar-3d') {
+        const barThickness = document.getElementById('barThickness').value;
+        drawBarChart3d(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
     } else if (chartType === 'pie') {
         drawPieChart(data, chartTitle, colorsPalette);
     }
@@ -353,6 +358,9 @@ const canvasToSVG = () => {
     } else if (chartType === 'bar') {
         const barThickness = document.getElementById('barThickness').value;
         return exportBarChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
+    } else if (chartType === 'bar-3d') {
+        const barThickness = document.getElementById('barThickness').value;
+        return exportBar3dChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
     } else if (chartType === 'pie') {
         return exportPieChartAsSvg(data, chartTitle, colorsPalette);
     }

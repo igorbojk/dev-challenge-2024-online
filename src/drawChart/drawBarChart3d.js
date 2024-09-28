@@ -1,4 +1,6 @@
-export default function drawBarChart3D(data, barThickness, colors) {
+import darkenColor from "../utils/darkenColor.js";
+
+export default function drawBarChart(data, title, xAxisName, yAxisName, barThickness, colorsPalette) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -9,52 +11,146 @@ export default function drawBarChart3D(data, barThickness, colors) {
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const depth = 20; // Depth for 3D effect
+    const padding = 70;
+    const legendHeight = 50; // Height reserved for the legend
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    const textColor = isDarkTheme ? '#FFF' : '#000';
 
     ctx.clearRect(0, 0, width, height);
 
+    const labels = data.slice(1).map(row => row[0]);
     const values = data.slice(1).map(row => row.slice(1).map(Number));
     const maxVal = Math.max(...values.flat());
-    const total = values.flat().reduce((acc, val) => acc + val, 0);
-    const scale = (height - 100) / maxVal;
+    const barSpacing = (width - 2 * padding) / labels.length;
+    const activeColumns = data[0].slice(1).map((label, colIndex) => ({
+        label,
+        enabled: document.getElementById(`barEnabled${colIndex}`).checked,
+        color: colorsPalette[colIndex % colorsPalette.length]
+    })).filter(col => col.enabled);
+    const activeColumnsCount = activeColumns.length;
+    const defaultBarThickness = Math.max(barSpacing * 0.8 / activeColumnsCount, 1);
 
-    const barSpacing = (width - depth) / (values.length - 1);
-    const yScale = Math.min(1, (height / (maxVal * scale)));
+    if (!+barThickness || +barThickness > defaultBarThickness.toFixed()) {
+        document.getElementById('barThickness').value = defaultBarThickness.toFixed();
+        barThickness = defaultBarThickness;
+    }
 
-    values.forEach((row, rowIndex) => {
-        row.forEach((value, colIndex) => {
-            const barHeight = (value / total) * height * yScale;
-            const color = colors[colIndex % colors.length];
-            const barX = rowIndex * barSpacing + colIndex * barThickness;
+    const numGridLines = 5;
+    const totalSteps = 70; // Increased number of steps for smoother animation
+    const step = 1 / totalSteps;
+    let progress = 0;
+    const depth = 20; // Depth for 3D effect
 
-            for (let n = depth; n > 0; n--) {
-                ctx.fillStyle = getDarkColor(colIndex);
-                ctx.fillRect(barX + n, height - n, barThickness, -barHeight);
-            }
+    // Draw static elements (grid lines, labels, axes, and legend)
+    const drawStaticElements = () => {
 
-            ctx.fillStyle = color;
-            ctx.fillRect(barX, height, barThickness, -barHeight);
-
-            if (depth === 0) {
-                ctx.lineWidth = 1;
-                ctx.strokeRect(barX, height, barThickness, -barHeight);
-            }
+        // Draw axes and labels
+        ctx.fillStyle = textColor;
+        ctx.textAlign = 'center';
+        labels.forEach((label, index) => {
+            ctx.fillText(label, padding + index * barSpacing + barSpacing / 2, height - padding - legendHeight + 20);
         });
-    });
+        ctx.save();
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(yAxisName, -height / 2, 20); // Adjusted position of Y-Axis name
+        ctx.restore();
+        ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
+        ctx.fillText(title, width / 2, padding - 20);
 
-    function getColor(i) {
-        const palette = [
-            '#1abc9c', '#2ecc71', '#3498db', '#9b59b6',
-            '#f1c40f', '#e67e22', '#e74c3c', '#16a085'
-        ];
-        return palette[i % palette.length];
-    }
+        // Draw legend
+        const legendX = padding;
+        const legendY = height - padding - legendHeight + (xAxisName ? 50 : 30); // Increase this value to move the legend lower if X-Axis name is present
+        const legendBoxSize = 20;
+        const legendSpacing = 10;
+        const legendWidth = (width - 2 * padding) / activeColumnsCount; // Divide width equally
 
-    function getDarkColor(i) {
-        const palette = [
-            '#1abc9c', 'rgb(39, 172, 95)', 'rgb(44, 128, 184)', 'rgb(130, 78, 151)',
-            'rgb(224, 183, 16)', 'rgb(201, 110, 29)', 'rgb(197, 66, 52)', 'rgb(20, 141, 117)'
-        ];
-        return palette[i % palette.length];
-    }
+        activeColumns.forEach((col, index) => {
+            const legendItemX = legendX + index * legendWidth; // Adjust spacing as needed
+
+            // Draw legend color box
+            ctx.fillStyle = col.color;
+            ctx.fillRect(legendItemX, legendY, legendBoxSize, legendBoxSize);
+
+            // Draw legend text
+            ctx.fillStyle = textColor;
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+
+            // Measure text and add ellipsis if necessary
+            let displayText = col.label;
+            const textWidth = ctx.measureText(displayText).width;
+            if (textWidth > legendWidth - legendBoxSize - legendSpacing) {
+                while (ctx.measureText(displayText + '...').width > legendWidth - legendBoxSize - legendSpacing && displayText.length > 0) {
+                    displayText = displayText.slice(0, -1);
+                }
+                displayText += '...';
+            }
+
+            ctx.fillText(displayText, legendItemX + legendBoxSize + legendSpacing, legendY + legendBoxSize / 2);
+        });
+    };
+
+    // Draw animated bars
+    const animate = () => {
+        progress += step;
+        if (progress > 1) progress = 1;
+
+        ctx.clearRect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
+
+        // Draw grid lines
+        for (let i = 0; i <= numGridLines; i++) {
+            const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
+            const value = i * (maxVal / numGridLines);
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.stroke();
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'right';
+            ctx.fillText(value.toFixed(2), padding - 10, y + 3);
+        }
+
+        // Draw bars for each set of values
+        values.forEach((row, rowIndex) => {
+            const activeValues = row.filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked);
+            const totalActiveWidth = activeValues.length * barThickness;
+            const groupOffset = (barSpacing - totalActiveWidth) / 2;
+
+            activeValues.forEach((value, activeIndex) => {
+                const colIndex = row.findIndex(val => val === value);
+                const barHeight = (value / maxVal) * (height - 2 * padding - legendHeight) * progress;
+                const color = colorsPalette[colIndex % colorsPalette.length];
+                const barX = padding + rowIndex * barSpacing + groupOffset + activeIndex * barThickness;
+
+                // Draw 3D effect
+                for (let n = depth; n > 0; n--) {
+                    ctx.fillStyle = darkenColor(color, 50); // Side wall color
+                    ctx.fillRect(barX + n, height - padding - legendHeight - barHeight - n, +barThickness, barHeight);
+                }
+
+                ctx.fillStyle = color;
+                ctx.fillRect(barX, height - padding - legendHeight - barHeight, +barThickness, barHeight);
+
+                // Draw top wall
+                ctx.fillStyle = darkenColor(color, 20); // Top wall color
+                ctx.beginPath();
+                ctx.moveTo(barX, height - padding - legendHeight - barHeight);
+                ctx.lineTo(barX + depth, height - padding - legendHeight - barHeight - depth);
+                ctx.lineTo(barX + +barThickness + depth, height - padding - legendHeight - barHeight - depth);
+                ctx.lineTo(barX + +barThickness, height - padding - legendHeight - barHeight);
+                ctx.closePath();
+                ctx.fill();
+            });
+        });
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    };
+
+    drawStaticElements();
+    animate();
 }
+
