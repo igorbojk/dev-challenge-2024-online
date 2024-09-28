@@ -132,6 +132,49 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
         }
     };
 
+
+    // Tooltip logic
+    const tooltip = document.createElement('div');
+    tooltip.style.position = 'absolute';
+    tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    tooltip.style.color = '#fff';
+    tooltip.style.padding = '5px';
+    tooltip.style.borderRadius = '3px';
+    tooltip.style.pointerEvents = 'none';
+    tooltip.style.display = 'none';
+    document.body.appendChild(tooltip);
+
+    canvas.addEventListener('mousemove', (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+
+        let found = false;
+        values.forEach((row, rowIndex) => {
+            const activeValues = row.filter((_, colIndex) => document.getElementById(`barEnabled${colIndex}`).checked);
+            const totalActiveWidth = activeValues.length * barThickness;
+            const groupOffset = (barSpacing - totalActiveWidth) / 2;
+
+            activeValues.forEach((value, activeIndex) => {
+                const barHeight = (value / maxVal) * (height - 2 * padding - legendHeight);
+                const barX = padding + rowIndex * barSpacing + groupOffset + activeIndex * barThickness;
+                const barY = height - padding - legendHeight - barHeight;
+
+                if (mouseX >= barX && mouseX <= barX + barThickness && mouseY >= barY && mouseY <= barY + barHeight) {
+                    tooltip.style.left = `${event.clientX + 10}px`;
+                    tooltip.style.top = `${event.clientY + 10}px`;
+                    tooltip.style.display = 'block';
+                    tooltip.innerHTML = `${activeColumns[activeIndex].label}:  ${value}`;
+                    found = true;
+                }
+            });
+        });
+
+        if (!found) {
+            tooltip.style.display = 'none';
+        }
+    });
+
     drawStaticElements();
     animate();
 }

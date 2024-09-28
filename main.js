@@ -80,7 +80,6 @@ const handleChartTypeChange = () => {
 };
 
 const drawChart = () => {
-
     const chartType = elements.chartTypeSelect.value;
 
     if (chartType === 'pie') {
