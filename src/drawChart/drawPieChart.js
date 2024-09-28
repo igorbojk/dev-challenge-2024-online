@@ -1,6 +1,7 @@
 export default function drawPieChart(data, title, colors) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width = canvas.clientWidth * dpr;
@@ -110,6 +111,44 @@ export default function drawPieChart(data, title, colors) {
             drawLegend();
         }
     };
+
+    const showTooltip = (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const centerX = width / 2;
+        const centerY = height / 2 + titlePadding / 2;
+        const dx = x - centerX;
+        const dy = y - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance <= radius) {
+            let startAngle = 0;
+            let endAngle = 0;
+            for (let i = 0; i < angles.length; i++) {
+                endAngle += angles[i];
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                if (ctx.isPointInPath(dx, dy)) {
+                    const percentage = ((Number(data[i + 1][1]) / total) * 100).toFixed(2);
+                    tooltip.style.left = `${event.clientX + 10}px`;
+                    tooltip.style.top = `${event.clientY + 10}px`;
+                    tooltip.style.display = 'block';
+                    tooltip.textContent = `${data[i + 1][0]}: ${percentage}%`;
+                    return;
+                }
+                startAngle = endAngle;
+            }
+        }
+        tooltip.style.display = 'none';
+    };
+
+    canvas.addEventListener('mousemove', showTooltip);
+    canvas.addEventListener('mouseout', () => {
+        tooltip.style.display = 'none';
+    });
 
     animate();
 }
