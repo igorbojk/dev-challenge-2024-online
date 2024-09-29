@@ -55,18 +55,39 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     function drawVerticalLines() {
         labels.forEach((label, index) => {
             const x = padding + index * xStep * zoomLevel + panOffset;
+
+            // Define the clipping region for the lines
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
+            ctx.clip();
+
+            // Draw the vertical line
             ctx.beginPath();
             ctx.moveTo(x, padding);
             ctx.lineTo(x, height - padding - legendHeight);
             ctx.strokeStyle = '#e0e0e0';
             ctx.stroke();
-            ctx.fillStyle = textColor;
-            ctx.textAlign = 'center';
-            ctx.fillText(label, x, height - padding - legendHeight + 20);
+
+            // Restore the previous clipping region
+            ctx.restore();
+
+            // Draw the text outside the clipping region if within bounds
+            if (x >= padding && x <= width - padding) {
+                ctx.fillStyle = textColor;
+                ctx.textAlign = 'center';
+                ctx.fillText(label, x, height - padding - legendHeight + 20);
+            }
         });
     }
 
     function drawPoints() {
+        // Define the clipping region
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
+        ctx.clip();
+
         values[0].forEach((_, lineIndex) => {
             const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
             if (!enabled) return;
@@ -77,11 +98,14 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
                 const x = padding + i * xStep * zoomLevel + panOffset;
                 const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
                 ctx.beginPath();
-                ctx.arc(x, y, 3 , 0, 2 * Math.PI);
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
                 ctx.fillStyle = color;
                 ctx.fill();
             }
         });
+
+        // Restore the previous clipping region
+        ctx.restore();
     }
 
     function drawLegend() {
@@ -117,6 +141,12 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     }
 
     function drawLines() {
+        // Define the clipping region
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
+        ctx.clip();
+
         values[0].forEach((_, lineIndex) => {
             const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
             if (!enabled) return;
@@ -144,12 +174,21 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
                 const x = padding + i * xStep * zoomLevel + panOffset;
                 const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
                 const currentProgress = progress * (labels.length - 1);
+
                 if (i <= currentProgress) {
-                    ctx.lineTo(x, y);
+                    if ((prevX >= padding && prevX <= width - padding) || (x >= padding && x <= width - padding)) {
+                        ctx.lineTo(x, y);
+                    } else {
+                        ctx.moveTo(x, y);
+                    }
                 } else {
                     const partialX = prevX + (x - prevX) * (currentProgress - (i - 1));
                     const partialY = prevY + (y - prevY) * (currentProgress - (i - 1));
-                    ctx.lineTo(partialX, partialY);
+                    if ((prevX >= padding && prevX <= width - padding) || (partialX >= padding && partialX <= width - padding)) {
+                        ctx.lineTo(partialX, partialY);
+                    } else {
+                        ctx.moveTo(partialX, partialY);
+                    }
                     break;
                 }
                 prevX = x;
@@ -157,6 +196,9 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
             }
             ctx.stroke();
         });
+
+        // Restore the previous clipping region
+        ctx.restore();
     }
 
     function drawLinesWithoutAnimation() {
