@@ -7,6 +7,8 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     canvas.width = canvas.clientWidth * dpr;
     canvas.height = canvas.clientHeight * dpr;
     ctx.scale(dpr, dpr);
+    ctx.font = 'bold 12px Arial';
+    ctx.textBaseline = 'middle';
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
@@ -82,10 +84,12 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     }
 
     function drawPoints() {
-        // Define the clipping region
+        const pointRadius = 3; // Радіус точки
+
+        // Збільшуємо область кліпінгу на радіус точки
         ctx.save();
         ctx.beginPath();
-        ctx.rect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
+        ctx.rect(padding - pointRadius, padding - pointRadius, width - 2 * padding + 2 * pointRadius, height - 2 * padding - legendHeight + 2 * pointRadius);
         ctx.clip();
 
         values[0].forEach((_, lineIndex) => {
@@ -98,13 +102,13 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
                 const x = padding + i * xStep * zoomLevel + panOffset;
                 const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
                 ctx.beginPath();
-                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.arc(x, y, pointRadius, 0, 2 * Math.PI);
                 ctx.fillStyle = color;
                 ctx.fill();
             }
         });
 
-        // Restore the previous clipping region
+        // Відновлюємо попередню область кліпінгу
         ctx.restore();
     }
 
@@ -123,9 +127,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
             ctx.fillRect(legendItemX, legendY, legendBoxSize, legendBoxSize);
 
             ctx.fillStyle = textColor;
-            ctx.font = '16px Arial';
             ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
 
             const maxTextWidth = legendItemWidth - legendBoxSize - legendSpacing;
             let displayText = fieldName;
