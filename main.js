@@ -87,6 +87,18 @@ const handleChartTypeChange = () => {
 const drawChart = () => {
     const chartType = elements.chartTypeSelect.value;
 
+    const oldCanvas = document.getElementById('canvas');
+    if (oldCanvas) {
+        const parent = oldCanvas.parentNode;
+        parent.removeChild(oldCanvas);
+
+        const newCanvas = document.createElement('canvas');
+        newCanvas.id = 'canvas';
+        newCanvas.width = oldCanvas.width;
+        newCanvas.height = oldCanvas.height;
+        parent.appendChild(newCanvas);
+    }
+
     if (chartType === 'pie') {
         elements.settingsButton.classList.add('hidden');
     } else {
