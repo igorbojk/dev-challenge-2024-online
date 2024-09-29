@@ -26,6 +26,10 @@ export function exportBarChartAsSvg(data, title, xAxisName, yAxisName, barThickn
         barThickness = defaultBarThickness;
     }
 
+    const legendBoxSize = 20;
+    const legendSpacing = 10;
+    const legendWidth = (width - 2 * padding) / activeColumnsCount;
+
     const numGridLines = 5;
     for (let i = 0; i <= numGridLines; i++) {
         const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
@@ -101,11 +105,14 @@ export function exportBarChartAsSvg(data, title, xAxisName, yAxisName, barThickn
     titleText.textContent = title;
     svg.appendChild(titleText);
 
+    drawLegend(svg, svgNS, activeColumns, width, height, padding, legendHeight, legendBoxSize, legendSpacing, legendWidth);
+
+    return new XMLSerializer().serializeToString(svg);
+}
+
+function drawLegend(svg, svgNS, activeColumns, width, height, padding, legendHeight, legendBoxSize, legendSpacing, legendWidth) {
     const legendX = padding;
-    const legendY = height - padding - legendHeight + (xAxisName ? 50 : 30);
-    const legendBoxSize = 20;
-    const legendSpacing = 10;
-    const legendWidth = (width - 2 * padding) / activeColumnsCount;
+    const legendY = height - padding - legendHeight + 50;
 
     activeColumns.forEach((col, index) => {
         const legendItemX = legendX + index * legendWidth;
@@ -125,19 +132,11 @@ export function exportBarChartAsSvg(data, title, xAxisName, yAxisName, barThickn
         text.setAttribute("alignment-baseline", "middle");
 
         let displayText = col.label;
-        const textWidth = document.createElementNS(svgNS, "text");
-        textWidth.textContent = displayText;
-        if (textWidth.getComputedTextLength() > legendWidth - legendBoxSize - legendSpacing) {
-            while (textWidth.getComputedTextLength() > legendWidth - legendBoxSize - legendSpacing && displayText.length > 0) {
-                displayText = displayText.slice(0, -1);
-                textWidth.textContent = displayText + '...';
-            }
-            displayText += '...';
+        if (displayText.length > 15) {
+            displayText = displayText.slice(0, 15) + '...';
         }
 
         text.textContent = displayText;
         svg.appendChild(text);
     });
-
-    return new XMLSerializer().serializeToString(svg);
 }

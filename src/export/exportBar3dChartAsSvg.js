@@ -185,14 +185,8 @@ function drawLegend(svg, svgNS, activeColumns, width, height, padding, legendHei
         text.setAttribute("alignment-baseline", "middle");
 
         let displayText = col.label;
-        const textWidth = document.createElementNS(svgNS, "text");
-        textWidth.textContent = displayText;
-        if (textWidth.getComputedTextLength() > legendWidth - legendBoxSize - legendSpacing) {
-            while (textWidth.getComputedTextLength() > legendWidth - legendBoxSize - legendSpacing && displayText.length > 0) {
-                displayText = displayText.slice(0, -1);
-                textWidth.textContent = displayText + '...';
-            }
-            displayText += '...';
+        if (displayText.length > 15) {
+            displayText = displayText.slice(0, 15) + '...';
         }
 
         text.textContent = displayText;
