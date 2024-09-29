@@ -21,7 +21,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
     const maxVal = Math.max(...values.flat());
     const minVal = Math.min(...values.flat());
-    const xStep = (width - 2 * padding) / (labels.length - 1);
+    let xStep = (width - 2 * padding) / (labels.length - 1);
     const yScale = (height - 2 * padding - legendHeight) / (maxVal - minVal);
 
     const isDarkTheme = document.body.classList.contains('dark-theme');
@@ -31,6 +31,11 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     let progress = 0;
     const totalSteps = 200;
     const step = 1 / totalSteps;
+
+    let panOffset = 0;
+    let isPanning = false;
+    let startX = 0;
+    let zoomLevel = 1;
 
     function drawGridLines() {
         for (let i = 0; i <= numGridLines; i++) {
@@ -49,7 +54,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
     function drawVerticalLines() {
         labels.forEach((label, index) => {
-            const x = padding + index * xStep;
+            const x = padding + index * xStep * zoomLevel + panOffset;
             ctx.beginPath();
             ctx.moveTo(x, padding);
             ctx.lineTo(x, height - padding - legendHeight);
@@ -69,10 +74,10 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
             const color = document.getElementById(`lineColor${lineIndex}`).value;
 
             for (let i = 0; i < labels.length; i++) {
-                const x = padding + i * xStep;
+                const x = padding + i * xStep * zoomLevel + panOffset;
                 const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
                 ctx.beginPath();
-                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.arc(x, y, 3 , 0, 2 * Math.PI);
                 ctx.fillStyle = color;
                 ctx.fill();
             }
@@ -122,7 +127,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
             ctx.beginPath();
             ctx.strokeStyle = color;
-            ctx.lineWidth = lineThickness;
+            ctx.lineWidth = lineThickness; // Не враховуємо zoomLevel
             if (style === 'dashed') {
                 ctx.setLineDash([10, 5]);
             } else if (style === 'dashdot') {
@@ -131,12 +136,12 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
                 ctx.setLineDash([]);
             }
 
-            let prevX = padding;
+            let prevX = padding + panOffset;
             let prevY = height - padding - legendHeight - (values[0][lineIndex] - minVal) * yScale;
             ctx.moveTo(prevX, prevY);
 
             for (let i = 1; i < labels.length; i++) {
-                const x = padding + i * xStep;
+                const x = padding + i * xStep * zoomLevel + panOffset;
                 const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
                 const currentProgress = progress * (labels.length - 1);
                 if (i <= currentProgress) {
@@ -152,6 +157,15 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
             }
             ctx.stroke();
         });
+    }
+
+    function drawLinesWithoutAnimation() {
+        ctx.clearRect(0, 0, width, height);
+        drawGridLines();
+        drawVerticalLines();
+        drawLines();
+        drawPoints();
+        drawLegend();
     }
 
     function animate() {
@@ -176,7 +190,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
         ctx.fillStyle = textColor;
         ctx.textAlign = 'center';
         labels.forEach((label, index) => {
-            const x = padding + index * xStep;
+            const x = padding + index * xStep * zoomLevel + panOffset;
             ctx.fillText(label, x, height - padding - legendHeight + 20);
         });
         ctx.save();
@@ -194,7 +208,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
         for (let lineIndex = 0; lineIndex < values[0].length; lineIndex++) {
             for (let i = 0; i < labels.length; i++) {
-                const pointX = padding + i * xStep;
+                const pointX = padding + i * xStep * zoomLevel + panOffset;
                 const pointY = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
 
                 if (Math.abs(x - pointX) < 5 && Math.abs(y - pointY) < 5) {
@@ -209,10 +223,42 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
         tooltip.style.display = 'none';
     }
 
+    function startPan(event) {
+        isPanning = true;
+        startX = event.clientX;
+    }
+
+    function pan(event) {
+        if (!isPanning) return;
+        const dx = event.clientX - startX;
+        panOffset += dx;
+        startX = event.clientX;
+        drawLinesWithoutAnimation();
+    }
+
+    function endPan() {
+        isPanning = false;
+    }
+
+    function zoom(event) {
+        event.preventDefault();
+        const zoomIntensity = labels.length / 10000;
+        const wheel = event.deltaY < 0 ? 1 : -1;
+        zoomLevel += wheel * (zoomIntensity < 0.1 ? 0.1 : zoomIntensity);
+        zoomLevel = Math.min(Math.max(0.5, zoomLevel), 300); // Limit zoom level between 0.5 and 3
+        drawLinesWithoutAnimation();
+    }
+
     canvas.addEventListener('mousemove', showTooltip);
     canvas.addEventListener('mouseout', () => {
         tooltip.style.display = 'none';
     });
+
+    canvas.addEventListener('mousedown', startPan);
+    canvas.addEventListener('mousemove', pan);
+    canvas.addEventListener('mouseup', endPan);
+    canvas.addEventListener('mouseleave', endPan);
+    canvas.addEventListener('wheel', zoom);
 
     drawAxesAndLabels();
     animate();
