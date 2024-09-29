@@ -273,8 +273,15 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     function pan(event) {
         if (!isPanning) return;
         const dx = event.clientX - startX;
-        panOffset += dx;
         startX = event.clientX;
+
+        // Calculate the maximum and minimum pan offsets
+        const maxPanOffset = 0;
+        const minPanOffset = -(labels.length - 1) * xStep * zoomLevel + (width - 2 * padding);
+
+        // Update panOffset with boundary checks
+        panOffset = Math.min(Math.max(panOffset + dx, minPanOffset), maxPanOffset);
+
         drawLinesWithoutAnimation();
     }
 
@@ -286,8 +293,23 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
         event.preventDefault();
         const zoomIntensity = labels.length / 10000;
         const wheel = event.deltaY < 0 ? 1 : -1;
-        zoomLevel += wheel * (zoomIntensity < 0.1 ? 0.1 : zoomIntensity);
-        zoomLevel = Math.min(Math.max(0.5, zoomLevel), 300); // Limit zoom level between 0.5 and 3
+        const newZoomLevel = zoomLevel + wheel * (zoomIntensity < 0.1 ? 0.1 : zoomIntensity);
+        const minZoomLevel = Math.min(1, (width - 2 * padding) / ((labels.length - 1) * xStep));
+
+        // Limit zoom level between minZoomLevel and 3
+        zoomLevel = Math.min(Math.max(minZoomLevel, newZoomLevel), 1000);
+
+        // Calculate the maximum and minimum pan offsets
+        const maxPanOffset = 0;
+        const minPanOffset = -(labels.length - 1) * xStep * zoomLevel + (width - 2 * padding);
+
+        // Adjust panOffset to ensure no empty space is shown
+        if (panOffset > maxPanOffset) {
+            panOffset = maxPanOffset;
+        } else if (panOffset < minPanOffset) {
+            panOffset = minPanOffset;
+        }
+
         drawLinesWithoutAnimation();
     }
 
