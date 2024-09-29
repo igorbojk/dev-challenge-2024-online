@@ -11,13 +11,13 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     const padding = yAxisName ? 70 : 50;
-    const legendHeight = 60; // Висота для легенди
+    const legendHeight = 60;
 
     ctx.clearRect(0, 0, width, height);
 
     const labels = data.slice(1).map(row => row[0]);
     const values = data.slice(1).map(row => row.slice(1));
-    const fieldNames = data[0].slice(1); // Отримати назви полів з першого рядка
+    const fieldNames = data[0].slice(1);
 
     const maxVal = Math.max(...values.flat());
     const minVal = Math.min(...values.flat());
@@ -27,40 +27,41 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     const isDarkTheme = document.body.classList.contains('dark-theme');
     const textColor = isDarkTheme ? '#FFF' : '#000';
 
-    // Малюємо горизонтальні лінії сітки та значення
     const numGridLines = 5;
-    for (let i = 0; i <= numGridLines; i++) {
-        const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
-        const value = minVal + i * (maxVal - minVal) / numGridLines;
-        ctx.beginPath();
-        ctx.moveTo(padding, y);
-        ctx.lineTo(width - padding, y);
-        ctx.strokeStyle = '#e0e0e0';
-        ctx.stroke();
-        ctx.fillStyle = textColor;
-        ctx.textAlign = 'right';
-        ctx.fillText(value.toFixed(2), padding - 10, y + 3);
-    }
-
-    // Малюємо вертикальні лінії сітки та мітки
-    labels.forEach((label, index) => {
-        const x = padding + index * xStep;
-        ctx.beginPath();
-        ctx.moveTo(x, padding);
-        ctx.lineTo(x, height - padding - legendHeight);
-        ctx.strokeStyle = '#e0e0e0';
-        ctx.stroke();
-        ctx.fillStyle = textColor;
-        ctx.textAlign = 'center';
-        ctx.fillText(label, x, height - padding - legendHeight + 20);
-    });
-
-    // Змінні для анімації
     let progress = 0;
-    const totalSteps = 200; // Збільшена кількість кроків для плавнішої анімації
+    const totalSteps = 200;
     const step = 1 / totalSteps;
 
-    const drawPoints = () => {
+    function drawGridLines() {
+        for (let i = 0; i <= numGridLines; i++) {
+            const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
+            const value = minVal + i * (maxVal - minVal) / numGridLines;
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.stroke();
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'right';
+            ctx.fillText(value.toFixed(2), padding - 10, y + 3);
+        }
+    }
+
+    function drawVerticalLines() {
+        labels.forEach((label, index) => {
+            const x = padding + index * xStep;
+            ctx.beginPath();
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, height - padding - legendHeight);
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.stroke();
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x, height - padding - legendHeight + 20);
+        });
+    }
+
+    function drawPoints() {
         values[0].forEach((_, lineIndex) => {
             const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
             if (!enabled) return;
@@ -76,9 +77,9 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
                 ctx.fill();
             }
         });
-    };
+    }
 
-    const drawLegend = () => {
+    function drawLegend() {
         const legendX = padding;
         const legendY = height - padding + 10;
         const legendBoxSize = 20;
@@ -87,20 +88,16 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
         fieldNames.forEach((fieldName, lineIndex) => {
             const legendItemX = legendX + lineIndex * legendItemWidth;
-
             const color = document.getElementById(`lineColor${lineIndex}`).value;
 
-            // Малюємо кольоровий квадрат легенди
             ctx.fillStyle = color;
             ctx.fillRect(legendItemX, legendY, legendBoxSize, legendBoxSize);
 
-            // Малюємо текст легенди
             ctx.fillStyle = textColor;
             ctx.font = '16px Arial';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
 
-            // Обрізаємо текст, якщо він не влазить
             const maxTextWidth = legendItemWidth - legendBoxSize - legendSpacing;
             let displayText = fieldName;
             if (ctx.measureText(fieldName).width > maxTextWidth) {
@@ -112,41 +109,9 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
             ctx.fillText(displayText, legendItemX + legendBoxSize + legendSpacing, legendY + legendBoxSize / 2);
         });
-    };
+    }
 
-    const animate = () => {
-        progress += step;
-        if (progress > 1) progress = 1;
-
-        ctx.clearRect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
-
-        // Перемальовуємо лінії сітки
-        for (let i = 0; i <= numGridLines; i++) {
-            const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
-            const value = minVal + i * (maxVal - minVal) / numGridLines;
-            ctx.beginPath();
-            ctx.moveTo(padding, y);
-            ctx.lineTo(width - padding, y);
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.stroke();
-            ctx.fillStyle = textColor;
-            ctx.textAlign = 'right';
-            ctx.fillText(value.toFixed(2), padding - 10, y + 3);
-        }
-
-        labels.forEach((label, index) => {
-            const x = padding + index * xStep;
-            ctx.beginPath();
-            ctx.moveTo(x, padding);
-            ctx.lineTo(x, height - padding - legendHeight);
-            ctx.strokeStyle = '#e0e0e0';
-            ctx.stroke();
-            ctx.fillStyle = textColor;
-            ctx.textAlign = 'center';
-            ctx.fillText(label, x, height - padding - legendHeight + 20);
-        });
-
-        // Малюємо лінії для кожного набору значень
+    function drawLines() {
         values[0].forEach((_, lineIndex) => {
             const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
             if (!enabled) return;
@@ -187,6 +152,17 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
             }
             ctx.stroke();
         });
+    }
+
+    function animate() {
+        progress += step;
+        if (progress > 1) progress = 1;
+
+        ctx.clearRect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
+
+        drawGridLines();
+        drawVerticalLines();
+        drawLines();
 
         if (progress < 1) {
             requestAnimationFrame(animate);
@@ -194,25 +170,24 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
             drawPoints();
             drawLegend();
         }
-    };
+    }
 
-    animate();
+    function drawAxesAndLabels() {
+        ctx.fillStyle = textColor;
+        ctx.textAlign = 'center';
+        labels.forEach((label, index) => {
+            const x = padding + index * xStep;
+            ctx.fillText(label, x, height - padding - legendHeight + 20);
+        });
+        ctx.save();
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(yAxisName, -height / 2, 10);
+        ctx.restore();
+        ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
+        ctx.fillText(title, width / 2, padding - 10);
+    }
 
-    // Малюємо осі та мітки
-    ctx.fillStyle = textColor;
-    ctx.textAlign = 'center';
-    labels.forEach((label, index) => {
-        const x = padding + index * xStep;
-        ctx.fillText(label, x, height - padding - legendHeight + 20);
-    });
-    ctx.save();
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, 10); // Відкоригована позиція для назви осі Y
-    ctx.restore();
-    ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
-    ctx.fillText(title, width / 2, padding - 10);
-
-    const showTooltip = (event) => {
+    function showTooltip(event) {
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
@@ -232,10 +207,13 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
             }
         }
         tooltip.style.display = 'none';
-    };
+    }
 
     canvas.addEventListener('mousemove', showTooltip);
     canvas.addEventListener('mouseout', () => {
         tooltip.style.display = 'none';
     });
+
+    drawAxesAndLabels();
+    animate();
 }
