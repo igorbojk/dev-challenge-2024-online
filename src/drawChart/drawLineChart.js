@@ -10,7 +10,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const padding = 50;
+    const padding = yAxisName ? 70 : 50;
     const legendHeight = 60; // Висота для легенди
 
     ctx.clearRect(0, 0, width, height);
@@ -207,7 +207,7 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     });
     ctx.save();
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText(yAxisName, -height / 2, padding - 10); // Відкоригована позиція для назви осі Y
+    ctx.fillText(yAxisName, -height / 2, 10); // Відкоригована позиція для назви осі Y
     ctx.restore();
     ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
     ctx.fillText(title, width / 2, padding - 10);

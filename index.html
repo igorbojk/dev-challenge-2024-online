@@ -10,37 +10,37 @@
   <body class="light-theme">
   <header>
     <h1>Data Visualization Tool</h1>
-    <span class="material-icons icon pointer" id="themeIcon">brightness_6</span>
+    <span class="material-icons icon pointer" id="themeIcon" title="Toggle theme">brightness_6</span>
   </header>
   <main>
       <section id="uploadSection" class="upload-section">
-        <div id="dropZone" class="drop-zone"><p>Drag and drop files here or click on button </p>  <input type="file" id="fileInput" accept=".csv, .xlsx, .json"></div>
+        <div id="dropZone" class="drop-zone" title="Drop files here"><p>Drag and drop files here or click on button </p>  <input type="file" id="fileInput" accept=".csv, .xlsx, .json" title="Upload a file"></div>
         <div class="divider">
           <span class="small-text">OR</span>
         </div>
-        <textarea id="manualDataInput" placeholder="Enter data manually"></textarea>
-        <button id="proceedButton" class="secondary">Proceed Data</button>
+        <textarea id="manualDataInput" placeholder="Enter data manually" title="Enter data manually"></textarea>
+        <button id="proceedButton" class="secondary" title="Proceed with the data">Proceed Data</button>
       </section>
 
     <div class="actions hidden">
       <div class="chart-type-select">
         <label for="chartType">Select Chart Type:</label>
-        <select id="chartType" >
+        <select id="chartType" title="Select chart type">
           <option value="line">Line Chart</option>
           <option value="bar">Bar Chart</option>
           <option value="bar-3d">3D Bar Chart</option>
           <option value="pie">Pie Chart</option>
         </select>
       </div>
-      <button id="settingsButton" class="secondary">
+      <button id="settingsButton" class="secondary" title="Open settings">
         <span class="material-icons icon">
           settings
         </span>
         Chart Settings
       </button>
-      <button id="drawChartButton" class="primary">Draw Chart</button>
+      <button id="drawChartButton" class="primary" title="Draw the chart">Draw Chart</button>
 
-      <button id="resetButton" class="error">Reset all</button>
+      <button id="resetButton" class="error" title="Reset the application">Reset all</button>
 
     </div>
     <section id="previewSection" class="hidden preview-section">
@@ -56,15 +56,15 @@
         <div class="base-settings">
           <div class="input-element">
             <label for="chartTitle">Chart Title:</label>
-            <input type="text" id="chartTitle">
+            <input type="text" id="chartTitle" title="Set chart title">
           </div>
           <div class="input-element" id="xAxisNameElement">
             <label for="xAxisName">X-Axis Name:</label>
-            <input type="text" id="xAxisName">
+            <input type="text" id="xAxisName" title="Set chart X axis name">
           </div>
           <div class="input-element"  id="yAxisNameElement">
             <label for="yAxisName">Y-Axis Name:</label>
-            <input type="text" id="yAxisName">
+            <input type="text" id="yAxisName" title="Set chart Y axis name">
           </div>
         </div>
       </div>
@@ -72,15 +72,15 @@
       <div id="tooltip"></div>
 
       <section id="exportSection">
-        <button id="exportPNG" class="primary">Export as PNG</button>
-        <button id="exportSVG" class="primary">Export as SVG</button>
-        <button id="exportPDF" class="primary">Export as PDF</button>
-        <button id="printChart" class="primary">Print Chart</button>
+        <button id="exportPNG" class="primary" title="Export chart as PNG">Export as PNG</button>
+        <button id="exportSVG" class="primary" title="Export chart as SVG">Export as SVG</button>
+        <button id="exportPDF" class="primary" title="Export chart as PDF">Export as PDF</button>
+        <button id="printChart" class="primary" title="Print the chart">Print Chart</button>
       </section>
     </section>
 
     <aside class="chart-settings">
-       <span class="material-icons icon" id="closeBtn">
+       <span class="material-icons icon" id="closeBtn" title="Close settings">
           close
         </span>
       <div id="lineSettings" class="line-settings"></div>
@@ -88,7 +88,7 @@
       <div id="barSettings" style="display: none;"></div>
     </aside>
 
-    <button id="showOnboardingModalBtn" class="secondary onboarding-btn">
+    <button id="showOnboardingModalBtn" class="secondary onboarding-btn" title="Show onboarding modal">
       <span class="material-icons icon">
           help
         </span>
@@ -96,7 +96,7 @@
 
     <div id="onboardingModal" class="modal hidden">
       <div class="modal-content">
-        <span class="material-icons icon close" id="closeOnboardingBtn">
+        <span class="material-icons icon close" id="closeOnboardingBtn" title="Close onboarding modal">
           close
         </span>
         <video width="100%" controls autoplay muted>

@@ -69,7 +69,7 @@ const handleInputChange = debounce((event) => {
     }
 
     drawChart();
-}, 1500);
+}, 1000);
 
 const handleChartTypeChange = () => {
     const chartType = elements.chartTypeSelect.value;
@@ -186,19 +186,19 @@ const setupLineSettings = (headers) => {
         lineSettingDiv.innerHTML = `
             <div class="settings">
                 <label for="lineEnabled${index}">${header}:</label>
-                <input type="checkbox" id="lineEnabled${index}" checked>
+                <input type="checkbox" id="lineEnabled${index}" checked title="Tottle line">
             </div>
             <div class="settings">
                 <label for="lineThickness${index}">Thickness:</label>
-                <input type="number" id="lineThickness${index}" value="2" min="1">
+                <input type="number" id="lineThickness${index}" value="2" min="1" title="Set line thickness">
             </div>
             <div class="settings">
                 <label for="lineColor${index}">Color:</label>
-                <input type="color" id="lineColor${index}" value="${getRandomColorFromPalette()}">
+                <input type="color" id="lineColor${index}" value="${getRandomColorFromPalette()}" title="Set line color">
             </div>
             <div class="settings">
                 <label for="lineStyle${index}">Line Style:</label>
-                <select id="lineStyle${index}">
+                <select id="lineStyle${index}" title="Set line style">
                     <option value="solid">Solid</option>
                     <option value="dashed">Dashed</option>
                     <option value="dashdot">Dash-Dot</option>
@@ -217,7 +217,7 @@ const setupBarSettings = (headers) => {
     barSettingDiv.innerHTML = `
         <div class="settings">
             <label for="barThickness">Bar Thickness:</label>
-            <input type="number" id="barThickness" value="0" min="1">
+            <input type="number" id="barThickness" value="0" min="1" title="Set bar thickness">
         </div>
     `;
     barSettingsContainer.appendChild(barSettingDiv);
@@ -227,7 +227,7 @@ const setupBarSettings = (headers) => {
         barInnerSettingDiv.classList.add('settings');
         barInnerSettingDiv.innerHTML = `
             <label for="barEnabled${index}">Enable ${header}:</label>
-            <input type="checkbox" id="barEnabled${index}" checked>
+            <input type="checkbox" id="barEnabled${index}" checked title="Toggle enable for bar">
         `;
         barSettingDiv.appendChild(barInnerSettingDiv);
     });

@@ -11,7 +11,7 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const padding = 70;
+    const padding = yAxisName ? 70 : 80;
     const legendHeight = 50; // Height reserved for the legend
     const isDarkTheme = document.body.classList.contains('dark-theme');
     const textColor = isDarkTheme ? '#FFF' : '#000';
@@ -52,7 +52,7 @@ export default function drawBarChart(data, title, xAxisName, yAxisName, barThick
         });
         ctx.save();
         ctx.rotate(-Math.PI / 2);
-        ctx.fillText(yAxisName, -height / 2, 20); // Adjusted position of Y-Axis name
+        ctx.fillText(yAxisName, -height / 2, 10); // Adjusted position of Y-Axis name
         ctx.restore();
         ctx.fillText(xAxisName, width / 2, height - padding - legendHeight + 40);
         ctx.fillText(title, width / 2, padding - 20);
