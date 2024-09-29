@@ -1,4 +1,7 @@
-export default function drawLineChart(data, title, xAxisName, yAxisName) {
+let panOffset = 0;
+let zoomLevel = 1;
+
+export function drawLineChart(data, title, xAxisName, yAxisName) {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const tooltip = document.getElementById('tooltip');
@@ -34,10 +37,9 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
     const totalSteps = 200;
     const step = 1 / totalSteps;
 
-    let panOffset = 0;
+
     let isPanning = false;
     let startX = 0;
-    let zoomLevel = 1;
 
     function drawGridLines() {
         for (let i = 0; i <= numGridLines; i++) {
@@ -328,4 +330,176 @@ export default function drawLineChart(data, title, xAxisName, yAxisName) {
 
     drawAxesAndLabels();
     animate();
+}
+
+export function exportLineChart(data, title, xAxisName, yAxisName) {
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        const padding = yAxisName ? 70 : 50;
+        const legendHeight = 60;
+
+        svg.setAttribute("width", width);
+        svg.setAttribute("height", height);
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+        const labels = data.slice(1).map(row => row[0]);
+        const values = data.slice(1).map(row => row.slice(1));
+        const fieldNames = data[0].slice(1);
+
+        const maxVal = Math.max(...values.flat());
+        const minVal = Math.min(...values.flat());
+        const xStep = (width - 2 * padding) / (labels.length - 1);
+        const yScale = (height - 2 * padding - legendHeight) / (maxVal - minVal);
+
+        const isDarkTheme = document.body.classList.contains('dark-theme');
+        const textColor = isDarkTheme ? '#FFF' : '#000';
+
+        const numGridLines = 5;
+
+        function drawGridLines() {
+            for (let i = 0; i <= numGridLines; i++) {
+                const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
+                const value = minVal + i * (maxVal - minVal) / numGridLines;
+
+                const line = document.createElementNS(svgNS, "line");
+                line.setAttribute("x1", padding);
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", width - padding);
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke", "#e0e0e0");
+                svg.appendChild(line);
+
+                const text = document.createElementNS(svgNS, "text");
+                text.setAttribute("x", padding - 10);
+                text.setAttribute("y", y + 3);
+                text.setAttribute("fill", textColor);
+                text.setAttribute("text-anchor", "end");
+                text.textContent = value.toFixed(2);
+                svg.appendChild(text);
+            }
+        }
+
+        function drawVerticalLines() {
+            labels.forEach((label, index) => {
+                const x = padding + index * xStep * zoomLevel + panOffset;
+
+                const line = document.createElementNS(svgNS, "line");
+                line.setAttribute("x1", x);
+                line.setAttribute("y1", padding);
+                line.setAttribute("x2", x);
+                line.setAttribute("y2", height - padding - legendHeight);
+                line.setAttribute("stroke", "#e0e0e0");
+                svg.appendChild(line);
+
+                if (x >= padding && x <= width - padding) {
+                    const text = document.createElementNS(svgNS, "text");
+                    text.setAttribute("x", x);
+                    text.setAttribute("y", height - padding - legendHeight + 20);
+                    text.setAttribute("fill", textColor);
+                    text.setAttribute("text-anchor", "middle");
+                    text.textContent = label;
+                    svg.appendChild(text);
+                }
+            });
+        }
+
+        function drawLines() {
+            values[0].forEach((_, lineIndex) => {
+                const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
+                if (!enabled) return;
+
+                const color = document.getElementById(`lineColor${lineIndex}`).value;
+                const style = document.getElementById(`lineStyle${lineIndex}`).value;
+                const lineThickness = document.getElementById(`lineThickness${lineIndex}`).value;
+
+                const path = document.createElementNS(svgNS, "path");
+                path.setAttribute("stroke", color);
+                path.setAttribute("stroke-width", lineThickness);
+                path.setAttribute("fill", "none");
+
+                if (style === 'dashed') {
+                    path.setAttribute("stroke-dasharray", "10,5");
+                } else if (style === 'dashdot') {
+                    path.setAttribute("stroke-dasharray", "10,5,2,5");
+                }
+
+                let d = `M${padding + panOffset},${height - padding - legendHeight - (values[0][lineIndex] - minVal) * yScale}`;
+                for (let i = 1; i < labels.length; i++) {
+                    const x = padding + i * xStep * zoomLevel + panOffset;
+                    const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
+                    d += ` L${x},${y}`;
+                }
+                path.setAttribute("d", d);
+                svg.appendChild(path);
+            });
+        }
+
+        function drawPoints() {
+            const pointRadius = 3;
+
+            values[0].forEach((_, lineIndex) => {
+                const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
+                if (!enabled) return;
+
+                const color = document.getElementById(`lineColor${lineIndex}`).value;
+
+                for (let i = 0; i < labels.length; i++) {
+                    const x = padding + i * xStep * zoomLevel + panOffset;
+                    const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
+
+                    const circle = document.createElementNS(svgNS, "circle");
+                    circle.setAttribute("cx", x);
+                    circle.setAttribute("cy", y);
+                    circle.setAttribute("r", pointRadius);
+                    circle.setAttribute("fill", color);
+                    svg.appendChild(circle);
+                }
+            });
+        }
+
+        function drawLegend() {
+            const legendX = padding;
+            const legendY = height - padding + 10;
+            const legendBoxSize = 20;
+            const legendSpacing = 10;
+            const legendItemWidth = (width - 2 * padding) / fieldNames.length;
+
+            fieldNames.forEach((fieldName, lineIndex) => {
+                const legendItemX = legendX + lineIndex * legendItemWidth;
+                const color = document.getElementById(`lineColor${lineIndex}`).value;
+
+                const rect = document.createElementNS(svgNS, "rect");
+                rect.setAttribute("x", legendItemX);
+                rect.setAttribute("y", legendY);
+                rect.setAttribute("width", legendBoxSize);
+                rect.setAttribute("height", legendBoxSize);
+                rect.setAttribute("fill", color);
+                svg.appendChild(rect);
+
+                const text = document.createElementNS(svgNS, "text");
+                text.setAttribute("x", legendItemX + legendBoxSize + legendSpacing);
+                text.setAttribute("y", legendY + legendBoxSize / 2);
+                text.setAttribute("fill", textColor);
+                text.setAttribute("text-anchor", "start");
+                text.setAttribute("dominant-baseline", "middle");
+
+                let displayText = fieldName;
+                if (displayText.length > 15) {
+                    displayText = displayText.slice(0, 15) + '...';
+                }
+
+                text.textContent = displayText;
+                svg.appendChild(text);
+            });
+        }
+
+        drawGridLines();
+        drawVerticalLines();
+        drawLines();
+        drawPoints();
+        drawLegend();
+
+        return new XMLSerializer().serializeToString(svg);
 }

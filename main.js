@@ -1,13 +1,12 @@
 import './style.css';
-import drawLineChart from "./src/drawChart/drawLineChart.js";
-import drawBarChart from "./src/drawChart/drawBarChart.js";
-import drawBarChart3d from "./src/drawChart/drawBarChart3d.js";
-import drawPieChart from "./src/drawChart/drawPieChart.js";
+import { drawLineChart, exportLineChart } from "./src/charts/lineChart.js";
+import drawBarChart from "./src/charts/drawBarChart.js";
+import drawBarChart3d from "./src/charts/drawBarChart3d.js";
+import drawPieChart from "./src/charts/drawPieChart.js";
 import parseCSV from "./src/parseData/parseCSV.js";
 import parseXLSX from "./src/parseData/parseXLSX.js";
 import parseJSON from "./src/parseData/parseJSON.js";
 
-import exportLineChartAsSvg from "./src/export/exportLineChartAsSvg.js";
 import { exportBarChartAsSvg } from "./src/export/exportBarChartAsSvg.js";
 import { exportBar3dChartAsSvg } from "./src/export/exportBar3dChartAsSvg.js";
 import { exportPieChartAsSvg } from "./src/export/exportPieChartAsSvg.js";
@@ -384,7 +383,7 @@ const canvasToSVG = () => {
     const yAxisName = document.getElementById('yAxisName').value;
 
     if (chartType === 'line') {
-        return exportLineChartAsSvg(data, chartTitle, xAxisName, yAxisName);
+        return exportLineChart(data, chartTitle, xAxisName, yAxisName);
     } else if (chartType === 'bar') {
         const barThickness = document.getElementById('barThickness').value;
         return exportBarChartAsSvg(data, chartTitle, xAxisName, yAxisName, barThickness, colorsPalette);
