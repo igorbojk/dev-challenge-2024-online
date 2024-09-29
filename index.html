@@ -10,7 +10,15 @@
   <body class="light-theme">
   <header>
     <h1>Data Visualization Tool</h1>
-    <span class="material-icons icon pointer" id="themeIcon" title="Toggle theme">brightness_6</span>
+    <div class="header-actions">
+      <span class="material-icons icon pointer" id="themeIcon" title="Toggle theme">brightness_6</span>
+      <span class="material-icons icon pointer" id="accessibilityButton" title="Open accessibility menu ">settings_accessibility</span>
+    </div>
+    <div id="accessibilityMenu" class="dropdown-menu hidden">
+      <button id="toggleLineButton">Toggle Horizontal Line</button>
+      <button id="toggleGrayscaleButton">Toggle Grayscale</button>
+      <button id="toggleCursorSizeButton">Toggle Cursor Size</button>
+    </div>
   </header>
   <main>
       <section id="uploadSection" class="upload-section">
@@ -108,6 +116,7 @@
       </div>
     </div>
 
+    <div class="horizontal-line" id="horizontalLine"></div>
 
   </main>
     <script type="module" src="/main.js"></script>

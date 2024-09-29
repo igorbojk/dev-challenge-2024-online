@@ -15,6 +15,7 @@ import { exportPieChartAsSvg } from "./src/export/exportPieChartAsSvg.js";
 let data = [];
 const colorsPalette = ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'];
 let viewState = 'upload'; // 'upload', 'preview', 'chart';
+let lineVisible = false;
 
 // Elements
 const elements = {
@@ -43,7 +44,13 @@ const elements = {
     asideElement: document.querySelector('aside'),
     onboardingModal: document.getElementById('onboardingModal'),
     showOnboardingModalBtn: document.getElementById('showOnboardingModalBtn'),
-    closeOnboardingBtn: document.getElementById('closeOnboardingBtn')
+    closeOnboardingBtn: document.getElementById('closeOnboardingBtn'),
+    accessibilityButton: document.getElementById('accessibilityButton'),
+    accessibilityMenu: document.getElementById('accessibilityMenu'),
+    toggleGrayscaleButton: document.getElementById('toggleGrayscaleButton'),
+    toggleLineButton: document.getElementById('toggleLineButton'),
+    horizontalLine: document.getElementById('horizontalLine'),
+    toggleCursorSizeButton: document.getElementById('toggleCursorSizeButton'),
 };
 
 const modalSeenKey = 'modalSeen';
@@ -501,6 +508,35 @@ const lineChartObserver = new MutationObserver(addDynamicEventListenersForLineCh
 const barChartObserver = new MutationObserver(addDynamicEventListenersForBarChart);
 lineChartObserver.observe(elements.lineSettings, { childList: true, subtree: true });
 barChartObserver.observe(elements.barSettings, { childList: true, subtree: true });
+
+elements.accessibilityButton.addEventListener('click', () => {
+    elements.accessibilityMenu.classList.toggle('hidden');
+});
+
+elements.toggleLineButton.addEventListener('click', () => {
+    lineVisible = !lineVisible;
+    elements.horizontalLine.style.display = lineVisible ? 'block' : 'none';
+});
+
+elements.toggleGrayscaleButton.addEventListener('click', () => {
+    document.body.classList.toggle('grayscale');
+});
+
+elements.toggleCursorSizeButton.addEventListener('click', () => {
+    document.body.classList.toggle('large-cursor');
+});
+
+document.addEventListener('mousemove', (event) => {
+    if (lineVisible) {
+        elements.horizontalLine.style.top = `${event.clientY}px`;
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if (!elements.accessibilityMenu.contains(event.target) && !elements.accessibilityButton.contains(event.target)) {
+        elements.accessibilityMenu.classList.add('hidden');
+    }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
 
