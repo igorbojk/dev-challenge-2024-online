@@ -123,7 +123,7 @@ export function exportBar3dChartAsSvg(data, title, xAxisName, yAxisName, barThic
 
     const titleText = document.createElementNS(svgNS, "text");
     titleText.setAttribute("x", width / 2);
-    titleText.setAttribute("y", padding - 20);
+    titleText.setAttribute("y",  20);
     titleText.setAttribute("text-anchor", "middle");
     titleText.textContent = title;
     svg.appendChild(titleText);
