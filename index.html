@@ -88,6 +88,24 @@
       <div id="barSettings" style="display: none;"></div>
     </aside>
 
+    <button id="showOnboardingModalBtn" class="secondary onboarding-btn">
+      <span class="material-icons icon">
+          help
+        </span>
+    </button>
+
+    <div id="onboardingModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="material-icons icon close" id="closeOnboardingBtn">
+          close
+        </span>
+        <video width="100%" controls autoplay muted>
+          <source src="onboarding.mp4" type="video/mp4" >
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+
 
   </main>
     <script type="module" src="/main.js"></script>

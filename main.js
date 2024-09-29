@@ -40,8 +40,13 @@ const elements = {
     closeBtn: document.getElementById('closeBtn'),
     xAxisNameElement: document.getElementById('xAxisNameElement'),
     yAxisNameElement: document.getElementById('yAxisNameElement'),
-    asideElement: document.querySelector('aside')
+    asideElement: document.querySelector('aside'),
+    onboardingModal: document.getElementById('onboardingModal'),
+    showOnboardingModalBtn: document.getElementById('showOnboardingModalBtn'),
+    closeOnboardingBtn: document.getElementById('closeOnboardingBtn')
 };
+
+const modalSeenKey = 'modalSeen';
 
 const getRandomColorFromPalette = () => {
     const randomIndex = Math.floor(Math.random() * colorsPalette.length);
@@ -64,7 +69,7 @@ const handleInputChange = debounce((event) => {
     }
 
     drawChart();
-}, 500);
+}, 1500);
 
 const handleChartTypeChange = () => {
     const chartType = elements.chartTypeSelect.value;
@@ -312,7 +317,9 @@ const printGraph = () => {
 const toggleTheme = () => {
     document.body.classList.toggle('light-theme');
     document.body.classList.toggle('dark-theme');
-    drawChart();
+    if (viewState === 'chart') {
+        drawChart();
+    }
 };
 
 const handleDragOver = (event) => {
@@ -407,7 +414,23 @@ const changeView = (view) => {
     }
 };
 
+// Function to show the modal
+const showModal = () => {
+    elements.onboardingModal.classList.remove('hidden');
+};
+
+// Function to hide the modal
+const hideModal = () => {
+    elements.onboardingModal.classList.add('hidden');
+};
+
+
 // Handlers
+
+elements.closeOnboardingBtn.addEventListener('click', hideModal);
+
+// Event listener for the show modal button
+elements.showOnboardingModalBtn.addEventListener('click', showModal);
 elements.chartTypeSelect.addEventListener('change', handleChartTypeChange);
 elements.drawChartButton.addEventListener('click', () => {
     changeView('chart');
@@ -466,3 +489,11 @@ const lineChartObserver = new MutationObserver(addDynamicEventListenersForLineCh
 const barChartObserver = new MutationObserver(addDynamicEventListenersForBarChart);
 lineChartObserver.observe(elements.lineSettings, { childList: true, subtree: true });
 barChartObserver.observe(elements.barSettings, { childList: true, subtree: true });
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    if (!localStorage.getItem(modalSeenKey)) {
+        showModal();
+        localStorage.setItem(modalSeenKey, 'true');
+    }
+});
