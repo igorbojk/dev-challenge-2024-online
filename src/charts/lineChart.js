@@ -2,6 +2,9 @@ let panOffset = 0;
 let zoomLevel = 1;
 
 export function drawLineChart(data, title, xAxisName, yAxisName) {
+    panOffset = 0;
+    zoomLevel = 1;
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const tooltip = document.getElementById('tooltip');
