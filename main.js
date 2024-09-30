@@ -93,7 +93,9 @@ const handleChartTypeChange = () => {
     }
 };
 
+
 const drawChart = () => {
+
     const chartType = elements.chartTypeSelect.value;
 
     const oldCanvas = document.getElementById('canvas');
@@ -103,8 +105,8 @@ const drawChart = () => {
 
         const newCanvas = document.createElement('canvas');
         newCanvas.id = 'canvas';
-        newCanvas.width = oldCanvas.width;
-        newCanvas.height = oldCanvas.height;
+        newCanvas.width =  'auto';
+        newCanvas.height = 'auto';
         parent.appendChild(newCanvas);
     }
 
@@ -129,6 +131,13 @@ const drawChart = () => {
         drawPieChart(data, chartTitle, colorsPalette);
     }
 };
+
+window.addEventListener('resize', debounce((event) => {
+    if (viewState === 'chart') {
+        drawChart();
+    }
+}, 300));
+
 
 const proceedData = () => {
     const fileInput = elements.fileInput;

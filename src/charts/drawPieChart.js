@@ -13,7 +13,8 @@ export default function drawPieChart(data, title, colors) {
 
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
-    const radius = (height / 2) - padding;
+    const isSmallScreen = window.innerWidth <= 768;
+    const radius = isSmallScreen ? Math.min(width, height) / 2 : Math.min(width, height) / 3;
 
     ctx.clearRect(0, 0, width, height);
     ctx.save();
