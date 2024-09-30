@@ -337,173 +337,210 @@ export function drawLineChart(data, title, xAxisName, yAxisName) {
 }
 
 export function exportLineChart(data, title, xAxisName, yAxisName) {
-        const svgNS = "http://www.w3.org/2000/svg";
-        const svg = document.createElementNS(svgNS, "svg");
-        const width = canvas.clientWidth;
-        const height = canvas.clientHeight;
-        const padding = yAxisName ? 70 : 50;
-        const legendHeight = 60;
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const padding = yAxisName ? 70 : 50;
+    const legendHeight = 60;
 
-        svg.setAttribute("width", width);
-        svg.setAttribute("height", height);
-        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
 
-        const labels = data.slice(1).map(row => row[0]);
-        const values = data.slice(1).map(row => row.slice(1));
-        const fieldNames = data[0].slice(1);
+    const labels = data.slice(1).map(row => row[0]);
+    const values = data.slice(1).map(row => row.slice(1));
+    const fieldNames = data[0].slice(1);
 
-        const maxVal = Math.max(...values.flat());
-        const minVal = Math.min(...values.flat());
-        const xStep = (width - 2 * padding) / (labels.length - 1);
-        const yScale = (height - 2 * padding - legendHeight) / (maxVal - minVal);
+    const maxVal = Math.max(...values.flat());
+    const minVal = Math.min(...values.flat());
+    const xStep = (width - 2 * padding) / (labels.length - 1);
+    const yScale = (height - 2 * padding - legendHeight) / (maxVal - minVal);
 
-        const isDarkTheme = document.body.classList.contains('dark-theme');
-        const textColor = isDarkTheme ? '#FFF' : '#000';
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    const textColor = isDarkTheme ? '#FFF' : '#000';
 
-        const numGridLines = 5;
+    const numGridLines = 5;
 
-        function drawGridLines() {
-            for (let i = 0; i <= numGridLines; i++) {
-                const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
-                const value = minVal + i * (maxVal - minVal) / numGridLines;
+    function drawGridLines() {
+        for (let i = 0; i <= numGridLines; i++) {
+            const y = height - padding - legendHeight - (i * (height - 2 * padding - legendHeight) / numGridLines);
+            const value = minVal + i * (maxVal - minVal) / numGridLines;
 
-                const line = document.createElementNS(svgNS, "line");
-                line.setAttribute("x1", padding);
-                line.setAttribute("y1", y);
-                line.setAttribute("x2", width - padding);
-                line.setAttribute("y2", y);
-                line.setAttribute("stroke", "#e0e0e0");
-                svg.appendChild(line);
+            const line = document.createElementNS(svgNS, "line");
+            line.setAttribute("x1", padding);
+            line.setAttribute("y1", y);
+            line.setAttribute("x2", width - padding);
+            line.setAttribute("y2", y);
+            line.setAttribute("stroke", "#e0e0e0");
+            svg.appendChild(line);
 
+            const text = document.createElementNS(svgNS, "text");
+            text.setAttribute("x", padding);
+            text.setAttribute("y", y + 3);
+            text.setAttribute("fill", textColor);
+            text.setAttribute("text-anchor", "end");
+            text.textContent = value.toFixed(2);
+            svg.appendChild(text);
+        }
+    }
+
+    function drawVerticalLines() {
+        labels.forEach((label, index) => {
+            const x = padding + index * xStep * zoomLevel + panOffset;
+
+            // Define the clipping region for the lines
+            const clipPath = document.createElementNS(svgNS, "clipPath");
+            clipPath.setAttribute("id", `clipPathVertical${index}`);
+            const rect = document.createElementNS(svgNS, "rect");
+            rect.setAttribute("x", padding);
+            rect.setAttribute("y", padding);
+            rect.setAttribute("width", width - 2 * padding);
+            rect.setAttribute("height", height - 2 * padding - legendHeight);
+            clipPath.appendChild(rect);
+            svg.appendChild(clipPath);
+
+            const line = document.createElementNS(svgNS, "line");
+            line.setAttribute("x1", x);
+            line.setAttribute("y1", padding);
+            line.setAttribute("x2", x);
+            line.setAttribute("y2", height - padding - legendHeight);
+            line.setAttribute("stroke", "#e0e0e0");
+            line.setAttribute("clip-path", `url(#clipPathVertical${index})`);
+            svg.appendChild(line);
+
+            if (x >= padding && x <= width - padding) {
                 const text = document.createElementNS(svgNS, "text");
-                text.setAttribute("x", padding - 10);
-                text.setAttribute("y", y + 3);
+                text.setAttribute("x", x);
+                text.setAttribute("y", height - padding - legendHeight + 20);
                 text.setAttribute("fill", textColor);
-                text.setAttribute("text-anchor", "end");
-                text.textContent = value.toFixed(2);
+                text.setAttribute("text-anchor", "middle");
+                text.textContent = label;
                 svg.appendChild(text);
             }
-        }
+        });
+    }
 
-        function drawVerticalLines() {
-            labels.forEach((label, index) => {
-                const x = padding + index * xStep * zoomLevel + panOffset;
+    function drawLines() {
+        values[0].forEach((_, lineIndex) => {
+            const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
+            if (!enabled) return;
 
-                const line = document.createElementNS(svgNS, "line");
-                line.setAttribute("x1", x);
-                line.setAttribute("y1", padding);
-                line.setAttribute("x2", x);
-                line.setAttribute("y2", height - padding - legendHeight);
-                line.setAttribute("stroke", "#e0e0e0");
-                svg.appendChild(line);
+            const color = document.getElementById(`lineColor${lineIndex}`).value;
+            const style = document.getElementById(`lineStyle${lineIndex}`).value;
+            const lineThickness = document.getElementById(`lineThickness${lineIndex}`).value;
 
-                if (x >= padding && x <= width - padding) {
-                    const text = document.createElementNS(svgNS, "text");
-                    text.setAttribute("x", x);
-                    text.setAttribute("y", height - padding - legendHeight + 20);
-                    text.setAttribute("fill", textColor);
-                    text.setAttribute("text-anchor", "middle");
-                    text.textContent = label;
-                    svg.appendChild(text);
-                }
-            });
-        }
+            const path = document.createElementNS(svgNS, "path");
+            path.setAttribute("stroke", color);
+            path.setAttribute("stroke-width", lineThickness);
+            path.setAttribute("fill", "none");
 
-        function drawLines() {
-            values[0].forEach((_, lineIndex) => {
-                const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
-                if (!enabled) return;
+            if (style === 'dashed') {
+                path.setAttribute("stroke-dasharray", "10,5");
+            } else if (style === 'dashdot') {
+                path.setAttribute("stroke-dasharray", "10,5,2,5");
+            }
 
-                const color = document.getElementById(`lineColor${lineIndex}`).value;
-                const style = document.getElementById(`lineStyle${lineIndex}`).value;
-                const lineThickness = document.getElementById(`lineThickness${lineIndex}`).value;
+            let d = `M${padding + panOffset},${height - padding - legendHeight - (values[0][lineIndex] - minVal) * yScale}`;
+            for (let i = 1; i < labels.length; i++) {
+                const x = padding + i * xStep * zoomLevel + panOffset;
+                const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
+                d += ` L${x},${y}`;
+            }
+            path.setAttribute("d", d);
 
-                const path = document.createElementNS(svgNS, "path");
-                path.setAttribute("stroke", color);
-                path.setAttribute("stroke-width", lineThickness);
-                path.setAttribute("fill", "none");
+            // Add clipping path
+            const clipPath = document.createElementNS(svgNS, "clipPath");
+            clipPath.setAttribute("id", `clipPath${lineIndex}`);
+            const rect = document.createElementNS(svgNS, "rect");
+            rect.setAttribute("x", padding);
+            rect.setAttribute("y", padding);
+            rect.setAttribute("width", width - 2 * padding);
+            rect.setAttribute("height", height - 2 * padding - legendHeight);
+            clipPath.appendChild(rect);
+            svg.appendChild(clipPath);
 
-                if (style === 'dashed') {
-                    path.setAttribute("stroke-dasharray", "10,5");
-                } else if (style === 'dashdot') {
-                    path.setAttribute("stroke-dasharray", "10,5,2,5");
-                }
+            path.setAttribute("clip-path", `url(#clipPath${lineIndex})`);
+            svg.appendChild(path);
+        });
+    }
 
-                let d = `M${padding + panOffset},${height - padding - legendHeight - (values[0][lineIndex] - minVal) * yScale}`;
-                for (let i = 1; i < labels.length; i++) {
-                    const x = padding + i * xStep * zoomLevel + panOffset;
-                    const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
-                    d += ` L${x},${y}`;
-                }
-                path.setAttribute("d", d);
-                svg.appendChild(path);
-            });
-        }
+    function drawPoints() {
+        const pointRadius = 3;
 
-        function drawPoints() {
-            const pointRadius = 3;
+        values[0].forEach((_, lineIndex) => {
+            const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
+            if (!enabled) return;
 
-            values[0].forEach((_, lineIndex) => {
-                const enabled = document.getElementById(`lineEnabled${lineIndex}`).checked;
-                if (!enabled) return;
+            const color = document.getElementById(`lineColor${lineIndex}`).value;
 
-                const color = document.getElementById(`lineColor${lineIndex}`).value;
+            for (let i = 0; i < labels.length; i++) {
+                const x = padding + i * xStep * zoomLevel + panOffset;
+                const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
 
-                for (let i = 0; i < labels.length; i++) {
-                    const x = padding + i * xStep * zoomLevel + panOffset;
-                    const y = height - padding - legendHeight - (values[i][lineIndex] - minVal) * yScale;
-
-                    const circle = document.createElementNS(svgNS, "circle");
-                    circle.setAttribute("cx", x);
-                    circle.setAttribute("cy", y);
-                    circle.setAttribute("r", pointRadius);
-                    circle.setAttribute("fill", color);
-                    svg.appendChild(circle);
-                }
-            });
-        }
-
-        function drawLegend() {
-            const legendX = padding;
-            const legendY = height - padding + 10;
-            const legendBoxSize = 20;
-            const legendSpacing = 10;
-            const legendItemWidth = (width - 2 * padding) / fieldNames.length;
-
-            fieldNames.forEach((fieldName, lineIndex) => {
-                const legendItemX = legendX + lineIndex * legendItemWidth;
-                const color = document.getElementById(`lineColor${lineIndex}`).value;
-
+                // Add clipping path for points
+                const clipPath = document.createElementNS(svgNS, "clipPath");
+                clipPath.setAttribute("id", `clipPathPoint${lineIndex}${i}`);
                 const rect = document.createElementNS(svgNS, "rect");
-                rect.setAttribute("x", legendItemX);
-                rect.setAttribute("y", legendY);
-                rect.setAttribute("width", legendBoxSize);
-                rect.setAttribute("height", legendBoxSize);
-                rect.setAttribute("fill", color);
-                svg.appendChild(rect);
+                rect.setAttribute("x", padding - pointRadius);
+                rect.setAttribute("y", padding - pointRadius);
+                rect.setAttribute("width", width - 2 * padding + 2 * pointRadius);
+                rect.setAttribute("height", height - 2 * padding - legendHeight + 2 * pointRadius);
+                clipPath.appendChild(rect);
+                svg.appendChild(clipPath);
 
-                const text = document.createElementNS(svgNS, "text");
-                text.setAttribute("x", legendItemX + legendBoxSize + legendSpacing);
-                text.setAttribute("y", legendY + legendBoxSize / 2);
-                text.setAttribute("fill", textColor);
-                text.setAttribute("text-anchor", "start");
-                text.setAttribute("dominant-baseline", "middle");
+                const circle = document.createElementNS(svgNS, "circle");
+                circle.setAttribute("cx", x);
+                circle.setAttribute("cy", y);
+                circle.setAttribute("r", pointRadius);
+                circle.setAttribute("fill", color);
+                circle.setAttribute("clip-path", `url(#clipPathPoint${lineIndex}${i})`);
+                svg.appendChild(circle);
+            }
+        });
+    }
 
-                let displayText = fieldName;
-                if (displayText.length > 15) {
-                    displayText = displayText.slice(0, 15) + '...';
-                }
+    function drawLegend() {
+        const legendX = padding;
+        const legendY = height - padding + 10;
+        const legendBoxSize = 20;
+        const legendSpacing = 10;
+        const legendItemWidth = (width - 2 * padding) / fieldNames.length;
 
-                text.textContent = displayText;
-                svg.appendChild(text);
-            });
-        }
+        fieldNames.forEach((fieldName, lineIndex) => {
+            const legendItemX = legendX + lineIndex * legendItemWidth;
+            const color = document.getElementById(`lineColor${lineIndex}`).value;
 
-        drawGridLines();
-        drawVerticalLines();
-        drawLines();
-        drawPoints();
-        drawLegend();
+            const rect = document.createElementNS(svgNS, "rect");
+            rect.setAttribute("x", legendItemX);
+            rect.setAttribute("y", legendY);
+            rect.setAttribute("width", legendBoxSize);
+            rect.setAttribute("height", legendBoxSize);
+            rect.setAttribute("fill", color);
+            svg.appendChild(rect);
 
-        return new XMLSerializer().serializeToString(svg);
+            const text = document.createElementNS(svgNS, "text");
+            text.setAttribute("x", legendItemX + legendBoxSize + legendSpacing);
+            text.setAttribute("y", legendY + legendBoxSize / 2);
+            text.setAttribute("fill", textColor);
+            text.setAttribute("text-anchor", "start");
+            text.setAttribute("dominant-baseline", "middle");
+
+            let displayText = fieldName;
+            if (displayText.length > 15) {
+                displayText = displayText.slice(0, 15) + '...';
+            }
+
+            text.textContent = displayText;
+            svg.appendChild(text);
+        });
+    }
+
+    drawGridLines();
+    drawVerticalLines();
+    drawLines();
+    drawPoints();
+    drawLegend();
+
+    return new XMLSerializer().serializeToString(svg);
 }

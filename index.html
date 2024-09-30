@@ -13,6 +13,12 @@
     <div class="header-actions">
       <span class="material-icons icon pointer" id="themeIcon" title="Toggle theme">brightness_6</span>
       <span class="material-icons icon pointer" id="accessibilityButton" title="Open accessibility menu ">settings_accessibility</span>
+      <span class="material-icons icon pointer" id="showOnboardingModalBtn">
+        help
+      </span>
+      <span class="material-icons icon pointer" id="showInfoModal">
+        question_mark
+      </span>
     </div>
     <div id="accessibilityMenu" class="dropdown-menu hidden">
       <button id="toggleLineButton">Toggle Horizontal Line</button>
@@ -98,12 +104,6 @@
       <div id="barSettings" style="display: none;"></div>
     </aside>
 
-    <button id="showOnboardingModalBtn" class="secondary onboarding-btn" title="Show onboarding modal">
-      <span class="material-icons icon">
-          help
-        </span>
-    </button>
-
     <div id="onboardingModal" class="modal hidden">
       <div class="modal-content">
         <span class="material-icons icon close" id="closeOnboardingBtn" title="Close onboarding modal">
@@ -113,6 +113,30 @@
           <source src="onboarding.mp4" type="video/mp4" >
           Your browser does not support the video tag.
         </video>
+      </div>
+    </div>
+
+    <div id="infoModal" class="modal hidden">
+      <div class="modal-content">
+         <span class="material-icons icon close" id="closeInfoModalBtn" title="Close info modal">
+          close
+        </span>
+        <h2>Welcome to the Data Visualization Tools</h2>
+        <p>On this site, you can perform the following actions:</p>
+        <ol>
+          <li><strong>Upload Data</strong>: Click the "Upload File" button or manually enter data in the provided input field.</li>
+          <li><strong>Preview Data</strong>: After uploading data, view it in the "Preview" section.</li>
+          <li><strong>Build Charts</strong>: Select the chart type from the dropdown menu and click the "Draw Chart" button.</li>
+          <li><strong>Customize Charts</strong>: Use the settings panel to change colors, line styles, line thickness, and other parameters.</li>
+          <li><strong>Export Charts</strong>: Click the "Export as PNG", "Export as SVG", or "Export as PDF" buttons to save the chart.</li>
+          <li><strong>Print Charts</strong>: Click the "Print Chart" button to print the chart.</li>
+          <li><strong>Change Theme</strong>: Click the theme icon to switch between light and dark themes.</li>
+          <li><strong>Pan and Zoom</strong>: Use the mouse to pan and zoom the chart for a detailed view.</li>
+          <li><strong>Accessibility</strong>: Click the "Accessibility" button to adjust settings like cursor size or grayscale mode.</li>
+          <li><strong>View Tooltips</strong>: Hover over chart points to view tooltips.</li>
+          <li><strong>Display Settings</strong>: Use the settings panel to toggle the display of the legend, axes, and labels.</li>
+        </ol>
+        <p>The site provides a convenient interface for working with charts and their customization, making it easy to analyze and visualize data.</p>
       </div>
     </div>
 

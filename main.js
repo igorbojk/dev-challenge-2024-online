@@ -50,6 +50,9 @@ const elements = {
     toggleLineButton: document.getElementById('toggleLineButton'),
     horizontalLine: document.getElementById('horizontalLine'),
     toggleCursorSizeButton: document.getElementById('toggleCursorSizeButton'),
+    infoModal: document.getElementById('infoModal'),
+    closeInfoModalBtn: document.getElementById('closeInfoModalBtn'),
+    showInfoModal: document.getElementById('showInfoModal')
 };
 
 const modalSeenKey = 'modalSeen';
@@ -277,34 +280,7 @@ const exportSVG = () => {
     link.click();
 };
 
-const exportPDF = () => {
-    const canvas = document.getElementById('canvas');
-    const dataUrl = canvas.toDataURL('image/png');
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>Chart PDF</title>
-        </head>
-        <body>
-            <img src="${dataUrl}" />
-        </body>
-        </html>
-    `);
-
-    printWindow.document.close();
-    printWindow.onload = () => {
-        printWindow.focus();
-        printWindow.print();
-    };
-
-    printWindow.onafterprint = () => {
-        printWindow.close();
-    };
-
-};
-
-const printGraph = () => {
+const printChart = () => {
     const canvas = document.getElementById('canvas');
     const isDarkTheme = document.body.classList.contains('dark-theme');
     const backgroundColor = isDarkTheme ? '#000' : '#FFF';
@@ -384,7 +360,7 @@ const handleKeyDown = (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 'p') {
         if (viewState === 'chart') {
             event.preventDefault();
-            printGraph();
+            printChart();
         }
     }
 };
@@ -470,8 +446,8 @@ elements.drawChartButton.addEventListener('click', () => {
 elements.proceedButton.addEventListener('click', proceedData);
 elements.exportPNGButton.addEventListener('click', exportPNG);
 elements.exportSVGButton.addEventListener('click', exportSVG);
-elements.exportPDFButton.addEventListener('click', exportPDF);
-elements.printChartButton.addEventListener('click', printGraph);
+elements.exportPDFButton.addEventListener('click', printChart);
+elements.printChartButton.addEventListener('click', printChart);
 elements.themeIcon.addEventListener('click', toggleTheme);
 elements.dropZone.addEventListener('dragover', handleDragOver);
 elements.dropZone.addEventListener('dragleave', handleDragLeave);
@@ -556,4 +532,12 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal();
         localStorage.setItem(modalSeenKey, 'true');
     }
+});
+
+elements.closeInfoModalBtn.addEventListener('click', () => {
+    elements.infoModal.classList.add('hidden');
+});
+
+elements.showInfoModal.addEventListener('click', () => {
+    elements.infoModal.classList.remove('hidden');
 });
