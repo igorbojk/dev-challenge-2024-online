@@ -575,3 +575,8 @@ body.large-cursor *{
 body.dark-theme .modal-content {
   background: var(--black);
 }
+
+ol li {
+  font-size: 1.8rem;
+  margin-bottom: 0.8rem;
+}
