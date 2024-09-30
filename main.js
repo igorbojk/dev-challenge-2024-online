@@ -180,8 +180,29 @@ const validateData = (data) => {
         alert('Empty data. Please, insert another data.');
         return;
     }
+
+    mergeData();
     previewData(data);
 };
+
+const mergeData = () => {
+    const header = data[0];
+    const mergedData = {};
+
+    data.slice(1).forEach(row => {
+        const key = row[0];
+        if (!mergedData[key]) {
+            mergedData[key] = row.slice(1).map(Number);
+        } else {
+            row.slice(1).forEach((value, index) => {
+                mergedData[key][index] += Number(value);
+            });
+        }
+    });
+
+    data = [header, ...Object.entries(mergedData).map(([key, values]) => [key, ...values])];
+};
+
 
 const previewData = (data) => {
     changeView('preview');
