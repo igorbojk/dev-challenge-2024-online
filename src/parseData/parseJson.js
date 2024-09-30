@@ -1,5 +1,13 @@
 export default function parseJson(data) {
-    const jsonArray = JSON.parse(data);
+    let jsonArray = []
+
+    try {
+        jsonArray = JSON.parse(data);
+    } catch (e) {
+        alert("Invalid JSON data");
+        return
+    }
+
     if (jsonArray.length === 0) return [];
 
     const headers = Object.keys(jsonArray[0]);

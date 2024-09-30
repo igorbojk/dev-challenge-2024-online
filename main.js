@@ -160,6 +160,14 @@ const validateData = (data) => {
         alert('Data is not valid. All values except the first element must be numeric.');
         return;
     }
+    if (data.some(row => !row.length || row.some(cell => !cell))) {
+        alert('Invalid data. Please, insert another data.');
+        return;
+    }
+    if (!data.length) {
+        alert('Empty data. Please, insert another data.');
+        return;
+    }
     previewData(data);
 };
 
@@ -272,7 +280,8 @@ const exportSVG = () => {
 const exportPDF = () => {
     const canvas = document.getElementById('canvas');
     const dataUrl = canvas.toDataURL('image/png');
-    const pdfContent = `
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
         <html>
         <head>
             <title>Chart PDF</title>
@@ -281,14 +290,18 @@ const exportPDF = () => {
             <img src="${dataUrl}" />
         </body>
         </html>
-    `;
-    const blob = new Blob([pdfContent], { type: 'application/pdf' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'chart.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    `);
+
+    printWindow.document.close();
+    printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+    };
+
+    printWindow.onafterprint = () => {
+        printWindow.close();
+    };
+
 };
 
 const printGraph = () => {
