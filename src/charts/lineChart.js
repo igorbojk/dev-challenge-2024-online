@@ -215,13 +215,14 @@ export function drawLineChart(data, title, xAxisName, yAxisName) {
         drawLines();
         drawPoints();
         drawLegend();
+        drawAxesAndLabels();
     }
 
     function animate() {
         progress += step;
         if (progress > 1) progress = 1;
 
-        ctx.clearRect(padding, padding, width - 2 * padding, height - 2 * padding - legendHeight);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         drawGridLines();
         drawVerticalLines();
@@ -232,6 +233,7 @@ export function drawLineChart(data, title, xAxisName, yAxisName) {
         } else {
             drawPoints();
             drawLegend();
+            drawAxesAndLabels();
         }
     }
 
@@ -331,7 +333,6 @@ export function drawLineChart(data, title, xAxisName, yAxisName) {
     canvas.addEventListener('mouseleave', endPan);
     canvas.addEventListener('wheel', zoom);
 
-    drawAxesAndLabels();
     animate();
 }
 
