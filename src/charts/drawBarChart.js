@@ -83,7 +83,7 @@ function drawStaticElements(ctx, labels, width, height, padding, legendHeight, t
 
 function drawLegend(ctx, width, height, padding, legendHeight, textColor, activeColumns) {
     const legendX = padding;
-    const legendY = height - padding - legendHeight + 30;
+    const legendY = height - padding - legendHeight + 50;
     const legendBoxSize = 20;
     const legendSpacing = 10;
     const legendWidth = (width - 2 * padding) / activeColumns.length;
