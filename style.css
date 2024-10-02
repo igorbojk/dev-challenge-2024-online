@@ -538,7 +538,7 @@ body.dark-theme .horizontal-line {
 }
 
 body.large-cursor *{
-  cursor: url('big-cursor.svg'), auto !important;
+  cursor: url('/big-cursor.svg'), auto !important;
 }
 
 .modal {
