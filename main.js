@@ -11,8 +11,9 @@ import { exportBarChartAsSvg } from "./src/export/exportBarChartAsSvg.js";
 import { exportBar3dChartAsSvg } from "./src/export/exportBar3dChartAsSvg.js";
 import { exportPieChartAsSvg } from "./src/export/exportPieChartAsSvg.js";
 
-let data = [];
+const modalSeenKey = 'modalSeen';
 const colorsPalette = ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'];
+let data = [];
 let viewState = 'upload'; // 'upload', 'preview', 'chart';
 let lineVisible = false;
 
@@ -54,8 +55,6 @@ const elements = {
     closeInfoModalBtn: document.getElementById('closeInfoModalBtn'),
     showInfoModal: document.getElementById('showInfoModal')
 };
-
-const modalSeenKey = 'modalSeen';
 
 const getRandomColorFromPalette = () => {
     const randomIndex = Math.floor(Math.random() * colorsPalette.length);
@@ -132,11 +131,6 @@ const drawChart = () => {
     }
 };
 
-window.addEventListener('resize', debounce((event) => {
-    if (viewState === 'chart') {
-        drawChart();
-    }
-}, 300));
 
 
 const proceedData = () => {
@@ -463,6 +457,12 @@ const hideModal = () => {
 
 
 // Handlers
+
+window.addEventListener('resize', debounce((event) => {
+    if (viewState === 'chart') {
+        drawChart();
+    }
+}, 300));
 
 elements.closeOnboardingBtn.addEventListener('click', hideModal);
 
